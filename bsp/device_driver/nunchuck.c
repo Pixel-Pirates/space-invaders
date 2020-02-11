@@ -37,7 +37,7 @@ void nunchuck_refresh()
 
 void nunchuck_send_read()
 {
-    while (I2CA_WriteData(&I2cMsgIn1) != I2C_SUCCESS);
+    while (I2CA_ReadData(&I2cMsgIn1) != I2C_SUCCESS);
 }
 
 struct nunchuck_t nunchuck_read()
