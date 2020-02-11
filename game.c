@@ -5,22 +5,19 @@
  *      Author: Raymond Bernardo
  */
 /* Kernel includes. */
-#include "FreeRTOS.h" /* Must come first. */
-#include "task.h"     /* RTOS task related API prototypes. */
-#include "queue.h"    /* RTOS queue related API prototypes. */
-#include "timers.h"   /* Software timer related API prototypes. */
-#include "semphr.h"   /* Semaphore related API prototypes. */
+
+
 
 #include "game.h"
-#include "stdbool.h"
+#include "bsp/bsp.h"
+#include "threads/updateTask.h"
 
 
-#include "F28x_Project.h"     // Device Headerfile and Examples Include File
-
+SemaphoreHandle_t wii_ready = NULL;
+static StaticSemaphore_t wiiReadyBuffer;
 
 
 #define STACK_SIZE  256U
-
 
 static StaticTask_t updateTaskBuffer;
 static StackType_t  updateTaskStack[STACK_SIZE];
@@ -28,40 +25,6 @@ static StackType_t  updateTaskStack[STACK_SIZE];
 static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
 
-bool bulletCollided(struct entinity entinity, struct entinity bullet)
-{
-    struct coord topLeft = {
-         .x = entinity.x - entinity.width/2,
-         .y = entinity.y + entinity.height/2
-    };
-
-    struct coord bottomRight = {
-         .x = entinity.x - entinity.width/2,
-         .y = entinity.y + entinity.height/2
-    };
-
-    if ((topLeft.x < bullet.x && bottomRight.x > bullet.x) &&
-        (topLeft.y > bullet.y && bottomRight.y <bullet.y))
-      return true;
-
-    return false;
-}
-
-void updateTask(void * pvParameters)
-{
-    while (1)
-    {
-        vTaskDelay(16 / portTICK_PERIOD_MS);
-
-
-
-    }
-}
-
-void updateRemote()
-{
-
-}
 
 
 //-------------------------------------------------------------------------------------------------
@@ -106,6 +69,12 @@ void main(void)
     // illustrates how to set the GPIO to it's default state.
     InitCpuTimers();
 
+    InitGpio();
+
+    GPIO_SetupPinMux(105, GPIO_MUX_CPU1, 1);
+    GPIO_SetupPinMux(104, GPIO_MUX_CPU1, 1);
+
+
     // Step 3. Clear all interrupts and initialize PIE vector table:
     // Disable CPU interrupts
     DINT;
@@ -131,9 +100,14 @@ void main(void)
     InitPieVectTable();
 
 
+    BSP_Init();
+
+
     // Enable global Interrupts and higher priority real-time debug events:
     EINT;  // Enable Global interrupt INTM
     ERTM;  // Enable Global realtime interrupt DBGM
+
+    wii_ready = xSemaphoreCreateBinaryStatic( &wiiReadyBuffer );
 
     // Create the task without using any dynamic memory allocation.
     xTaskCreateStatic(updateTask,           // Function that implements the task.
@@ -144,5 +118,7 @@ void main(void)
                       updateTaskStack,      // Array to use as the task's stack.
                       &updateTaskBuffer );  // Variable to hold the task's data structure.
 
+
     vTaskStartScheduler();
 }
+
