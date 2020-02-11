@@ -55,7 +55,7 @@ struct nunchuck_t nunchuck_read()
     response.accel_z = (data[4] << 2) | ((data[5] >> 6) & 0x3);
     int zPressed = data[5] & 0x01;
     int cPressed = (data[5] >> 1) & 0x01;
-    response.button_c = cPressed;
+    response.button_c = cPressed || !zPressed;
     response.button_z = zPressed;
     return response;
 }
