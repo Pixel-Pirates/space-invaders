@@ -1,5 +1,6 @@
 
 #include "../bsp.h"     // Device Headerfile and Examples Include File
+#include "../../libs/printNum.h"
 
 //
 // Local variables
@@ -58,5 +59,26 @@ struct nunchuck_t nunchuck_read()
     response.button_c = cPressed || !zPressed;
     response.button_z = zPressed;
     return response;
+}
+
+void nunchuck_print(struct nunchuck_t* data)
+{
+    scia_msg("\n\rJoy X: ");
+    printNum(data->joy_x);
+    scia_msg("\n\rJoy Y: ");
+    printNum(data->joy_y);
+
+    scia_msg("\n\rZ-Button: ");
+    printNum(data->button_z);
+    scia_msg("\n\rC-Button: ");
+    printNum(data->button_c);
+
+    scia_msg("\n\rx-accel: ");
+    printNum(data->accel_x);
+    scia_msg("\n\ry-accel: ");
+    printNum(data->accel_y);
+    scia_msg("\n\rz-accel: ");
+    printNum(data->accel_z);
+    scia_msg("\n");
 }
 

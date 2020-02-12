@@ -18,3 +18,4 @@ struct nunchuck_t nunchuck_read();
 void nunchuck_send_read();
 void nunchuck_refresh();
 void nunchuck_init();
+void nunchuck_print(struct nunchuck_t* data);

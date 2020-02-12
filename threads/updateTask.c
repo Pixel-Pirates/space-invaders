@@ -19,18 +19,8 @@ void updateTask(void * pvParameters)
         nunchuck_send_read();
         vTaskDelay(100 / portTICK_PERIOD_MS);
         struct nunchuck_t data = nunchuck_read();
+        nunchuck_print(&data);
 
-        scia_msg("\n\rJoy X: ");
-        printNum(data.joy_x);
-        scia_msg("\n\rJoy Y: ");
-        printNum(data.joy_y);
-
-        scia_msg("\n\rZ-Button: ");
-        printNum(data.button_z);
-        scia_msg("\n");
-        scia_msg("\n\rC-Button: ");
-        printNum(data.button_c);
-        scia_msg("\n");
 
 
 
