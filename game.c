@@ -11,13 +11,13 @@
 #include "game.h"
 #include "bsp/bsp.h"
 #include "threads/updateTask.h"
-
+#include "bsp/device_driver/fatfs/src/tff.h"
 
 SemaphoreHandle_t wii_ready = NULL;
 static StaticSemaphore_t wiiReadyBuffer;
 
 
-#define STACK_SIZE  256U
+#define STACK_SIZE  512U
 
 static StaticTask_t updateTaskBuffer;
 static StackType_t  updateTaskStack[STACK_SIZE];
@@ -25,7 +25,13 @@ static StackType_t  updateTaskStack[STACK_SIZE];
 static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
 
+static FATFS g_sFatFs;
+static FIL g_sFileObject;
 
+void __error__(char *pcFilename, unsigned long ulLine)
+{
+    ESTOP0;
+}
 
 //-------------------------------------------------------------------------------------------------
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName )
@@ -57,6 +63,8 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
 }
 
 //-------------------------------------------------------------------------------------------------
+
+
 void main(void)
 {
     // Step 1. Initialize System Control:
@@ -70,9 +78,6 @@ void main(void)
     InitCpuTimers();
 
     InitGpio();
-
-    GPIO_SetupPinMux(105, GPIO_MUX_CPU1, 1);
-    GPIO_SetupPinMux(104, GPIO_MUX_CPU1, 1);
 
 
     // Step 3. Clear all interrupts and initialize PIE vector table:
@@ -119,6 +124,17 @@ void main(void)
                       &updateTaskBuffer );  // Variable to hold the task's data structure.
 
 
-    vTaskStartScheduler();
+//    vTaskStartScheduler();
+
+        FRESULT fresult = f_mount(0, &g_sFatFs);
+        if(fresult != FR_OK) scia_msg("\rDid not mount\n");
+
+        fresult = f_open(&g_sFileObject, "wtf.txt", FA_READ);
+        if(fresult != FR_OK) scia_msg("\rDid not open\n");
+
+        fresult = f_read(&g_sFileObject, g_cTmpBuf, sizeof(g_cTmpBuf) - 1,
+                                 &usBytesRead);
+
+        while(1);
 }
 
