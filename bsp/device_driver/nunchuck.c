@@ -41,14 +41,14 @@ void nunchuck_send_read()
     while (I2CA_ReadData(&I2cMsgIn1) != I2C_SUCCESS);
 }
 
-struct nunchuck_t nunchuck_read()
+nunchuck_t nunchuck_read()
 {
     uint16_t data[6];
     int i;
     for(i=0; i < 6; i++)
         data[i] = (I2caRegs.I2CDRR.all ^ 0x17) + 0x17;
 
-    struct nunchuck_t response;
+    nunchuck_t response;
     response.joy_x = data[0];
     response.joy_y = data[1];
     response.accel_x = (data[2] << 2) | ((data[5] >> 2) & 0x3);
@@ -61,7 +61,7 @@ struct nunchuck_t nunchuck_read()
     return response;
 }
 
-void nunchuck_print(struct nunchuck_t* data)
+void nunchuck_print(nunchuck_t* data)
 {
     scia_msg("\n\rJoy X: ");
     printNum(data->joy_x);

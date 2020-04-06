@@ -18,7 +18,7 @@ void updateTask(void * pvParameters)
         vTaskDelay(100 / portTICK_PERIOD_MS);
         nunchuck_send_read();
         vTaskDelay(100 / portTICK_PERIOD_MS);
-        struct nunchuck_t data = nunchuck_read();
+        nunchuck_t data = nunchuck_read();
         nunchuck_print(&data);
 
 

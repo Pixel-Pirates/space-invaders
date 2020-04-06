@@ -1,8 +1,8 @@
 
+#ifndef BSP_DEVICE_DRIVER_Nunchuck
+#define BSP_DEVICE_DRIVER_Nunchuck
 
-
-
-struct nunchuck_t
+struct nunchuck
 {
     uint16_t joy_x;
     uint16_t joy_y;
@@ -13,9 +13,14 @@ struct nunchuck_t
     bool     button_z;
 };
 
+
+typedef struct nunchuck nunchuck_t;
+
 void nunchuck_init();
-struct nunchuck_t nunchuck_read();
+nunchuck_t nunchuck_read();
 void nunchuck_send_read();
 void nunchuck_refresh();
 void nunchuck_init();
-void nunchuck_print(struct nunchuck_t* data);
+void nunchuck_print(nunchuck_t* data);
+
+#endif /* BSP_DEVICE_DRIVER_Nunchuck */

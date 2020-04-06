@@ -15,6 +15,9 @@ void I2CA_Init(void)
     GPIO_SetupPinMux(105, GPIO_MUX_CPU1, 1);
     GPIO_SetupPinMux(104, GPIO_MUX_CPU1, 1);
 
+    GPIO_SetupPinOptions(105, GPIO_OPENDRAIN, GPIO_PULLUP);
+    GPIO_SetupPinOptions(104, GPIO_OPENDRAIN, GPIO_PULLUP);
+
     I2caRegs.I2CSAR.all = 0x0050;     // Slave address - EEPROM control code
 
     I2caRegs.I2CPSC.all = 0xFF;         // Prescaler - need 7-12 Mhz on module clk

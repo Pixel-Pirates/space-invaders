@@ -11,7 +11,12 @@
 #include "game.h"
 #include "bsp/bsp.h"
 #include "threads/updateTask.h"
+#include "threads/music.h"
+#include "threads/lcd.h"
 #include "bsp/device_driver/fatfs/src/tff.h"
+#include "dac.h"
+#include "driverlib.h"
+//#include "images/space_invader.h"
 
 SemaphoreHandle_t wii_ready = NULL;
 static StaticSemaphore_t wiiReadyBuffer;
@@ -22,11 +27,11 @@ static StaticSemaphore_t wiiReadyBuffer;
 static StaticTask_t updateTaskBuffer;
 static StackType_t  updateTaskStack[STACK_SIZE];
 
+static StaticTask_t updateSpeakerBuffer;
+static StackType_t  updateSpeakerStack[STACK_SIZE];
+
 static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
-
-static FATFS g_sFatFs;
-static FIL g_sFileObject;
 
 void __error__(char *pcFilename, unsigned long ulLine)
 {
@@ -91,8 +96,8 @@ void main(void)
     InitPieCtrl();
 
     // Disable CPU interrupts and clear all CPU interrupt flags:
-    IER = 0x0000;
-    IFR = 0x0000;
+    //IER = 0x0000;
+    //IFR = 0x0000;
 
     InitPieVectTable();
 
@@ -115,26 +120,29 @@ void main(void)
     wii_ready = xSemaphoreCreateBinaryStatic( &wiiReadyBuffer );
 
     // Create the task without using any dynamic memory allocation.
-    xTaskCreateStatic(updateTask,           // Function that implements the task.
-                      "Update task",        // Text name for the task.
+//    xTaskCreateStatic(updateTask,           // Function that implements the task.
+//                      "Update task",        // Text name for the task.
+//                      STACK_SIZE,           // Number of indexes in the xStack array.
+//                      ( void * ) 0,       // Parameter passed into the task.
+//                      tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+//                      updateTaskStack,      // Array to use as the task's stack.
+//                      &updateTaskBuffer );  // Variable to hold the task's data structure.
+
+    xTaskCreateStatic(lcd,           // Function that implements the task.
+                      "Update speaker",        // Text name for the task.
                       STACK_SIZE,           // Number of indexes in the xStack array.
                       ( void * ) 0,       // Parameter passed into the task.
                       tskIDLE_PRIORITY + 2, // Priority at which the task is created.
-                      updateTaskStack,      // Array to use as the task's stack.
-                      &updateTaskBuffer );  // Variable to hold the task's data structure.
+                      updateSpeakerStack,      // Array to use as the task's stack.
+                      &updateSpeakerBuffer );  // Variable to hold the task's data structure.
 
 
-//    vTaskStartScheduler();
+    vTaskStartScheduler();
 
-        FRESULT fresult = f_mount(0, &g_sFatFs);
-        if(fresult != FR_OK) scia_msg("\rDid not mount\n");
 
-        fresult = f_open(&g_sFileObject, "wtf.txt", FA_READ);
-        if(fresult != FR_OK) scia_msg("\rDid not open\n");
 
-        fresult = f_read(&g_sFileObject, g_cTmpBuf, sizeof(g_cTmpBuf) - 1,
-                                 &usBytesRead);
 
-        while(1);
+
+    while(1);
 }
 

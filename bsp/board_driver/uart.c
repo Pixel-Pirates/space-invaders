@@ -20,9 +20,9 @@ void uart_init(void)
 // These functions are found in the F2837xD_Gpio.c file.
 //
    GPIO_SetupPinMux(43, GPIO_MUX_CPU1, 15);
-   GPIO_SetupPinOptions(43, GPIO_INPUT, GPIO_PUSHPULL);
+   GPIO_SetupPinOptions(43, GPIO_INPUT, GPIO_PUSHPULL); //GPIO43 RX
    GPIO_SetupPinMux(42, GPIO_MUX_CPU1, 15);
-   GPIO_SetupPinOptions(42, GPIO_OUTPUT, GPIO_ASYNC);
+   GPIO_SetupPinOptions(42, GPIO_OUTPUT, GPIO_ASYNC); //GPIO42 TX
 //
 // Step 4. User specific code:
 //

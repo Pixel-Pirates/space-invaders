@@ -56,7 +56,7 @@ SECTIONS
    .reset           : > RESET,     PAGE = 0, TYPE = DSECT /* not used, */
 
    .stack           : > RAMM1,     PAGE = 1
-   .ebss            : > RAMGS1,    PAGE = 1
+   .ebss            : > RAMGS1 | RAMGS2,    PAGE = 1
    .econst          : > RAMGS1,    PAGE = 1
    .esysmem         : > RAMGS1,    PAGE = 1
    Filter_RegsFile  : > RAMGS2,	   PAGE = 1

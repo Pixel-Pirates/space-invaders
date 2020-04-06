@@ -9,6 +9,8 @@
 #include "board_driver/i2c.h"
 #include "board_driver/uart.h"
 #include "device_driver/nunchuck.h"
+#include "device_driver/LCD_Lib.h"
+#include "device_driver/sram.h"
 
 #include "stdbool.h"
 

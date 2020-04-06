@@ -1,0 +1,5 @@
+
+
+void updateSpeaker();
+
+void sampleTimer();
