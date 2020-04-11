@@ -80,16 +80,21 @@ void draw_entinity(entinity_t entinity, uint16_t color) {
     xSemaphoreTake(lcd_ready, portMAX_DELAY);
     #ifdef VGA
     uint32_t addr = 0;
-    sram_write_multi_start();
-    for(uint32_t y = 0; y < entinity.height; y++)
+
+    for(uint16_t bufNum = 0; bufNum < 2; bufNum++)
     {
-        for(uint32_t x = 0; x < entinity.width; x++)
+        GPIO_WritePin(32, bufNum);
+        sram_write_multi_start();
+        for(uint32_t y = 0; y < entinity.height; y++)
         {
-            addr = ((entinity.x + x) << 9) | (entinity.y + y);
-            sram_write_multi(addr, color);
+            for(uint32_t x = 0; x < entinity.width; x++)
+            {
+                addr = ((entinity.x + x) << 9) | (entinity.y + y);
+                sram_write_multi(addr, color);
+            }
         }
+        sram_write_multi_end();
     }
-    sram_write_multi_end();
     #elif LCD
     LCD_DrawRectangle(entinity.x, entinity.x + entinity.width, entinity.y, entinity.y + entinity.width, color);
     #endif

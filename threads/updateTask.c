@@ -11,7 +11,7 @@
 #include "../game.h"
 #include "../libs/sprite.h"
 
-#define RESTING_X 127
+
 
 extern player_t player;
 extern SemaphoreHandle_t player_ready;
@@ -19,10 +19,20 @@ extern SemaphoreHandle_t bullet_ready;
 
 extern bool gameOver;
 
+#define DEADZONE 40
+
 void updateTask(void * pvParameters)
 {
     int cPressed = false;
     sprite_draw(&player.sprite);
+
+    nunchuck_refresh();
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    nunchuck_send_read();
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    nunchuck_t data = nunchuck_read();
+    int16_t RESTING_X = data.joy_x;
+
     while (1)
     {
         while(gameOver);
@@ -31,17 +41,17 @@ void updateTask(void * pvParameters)
         vTaskDelay(5 / portTICK_PERIOD_MS);
         nunchuck_send_read();
         vTaskDelay(5 / portTICK_PERIOD_MS);
-        nunchuck_t data = nunchuck_read();
+        data = nunchuck_read();
         //nunchuck_print(&data);
         int16_t delta = data.joy_x - RESTING_X;
-        if (delta > 0)
+        if (delta > DEADZONE)
         {
             xSemaphoreTake(player_ready, portMAX_DELAY);
             player.sprite.x += 3;
             xSemaphoreGive(player_ready);
             sprite_draw(&player.sprite);
         }
-        else if (delta < 0)
+        else if (delta < -DEADZONE)
         {
             xSemaphoreTake(player_ready, portMAX_DELAY);
             player.sprite.x -= 3;

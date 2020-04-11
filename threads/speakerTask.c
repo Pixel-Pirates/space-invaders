@@ -7,9 +7,10 @@
 #include "../bsp/bsp.h"
 #include "../libs/printNum.h"
 #include "../bsp/device_driver/fatfs/src/tff.h"
-#include "dac.h"
-#include "driverlib.h"
+//#include "dac.h"
+//#include "driverlib.h"
 #include "../game.h"
+#include <F28x_Project.h>
 
 #define BUFFER_SIZE 100
 
@@ -37,7 +38,9 @@ bool ready = false;
 int counter = 0;
 void sampleTimer()
 {
-    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
+    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
+
+//    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
 
     if (counter >= BUFFER_SIZE - 1)
     {
@@ -55,7 +58,8 @@ void sampleTimer()
         xSemaphoreGiveFromISR(music_ready, &xHigherPriorityTaskWoken);
     }
 
-    DAC_setShadowValue(DACA_BASE,  out[counter]);
+    DacaRegs.DACVALS.all = out[counter];
+//    DAC_setShadowValue(DACA_BASE,  out[counter]);
     counter++;
 }
 
@@ -85,9 +89,15 @@ void speakerTask()
     ConfigCpuTimer(&CpuTimer0,
                    configCPU_CLOCK_HZ / 1000000,  // CPU clock in MHz
                    1000000 / 16000); // Timer period in uS
-    CPUTimer_enableInterrupt(CPUTIMER0_BASE);
-    Interrupt_enable(INT_TIMER0);
-    CPUTimer_startTimer(CPUTIMER0_BASE);
+
+    CpuTimer0Regs.TCR.bit.TIE = 1;
+//    CPUTimer_enableInterrupt(CPUTIMER0_BASE);
+
+    PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
+//    Interrupt_enable(INT_TIMER0);
+
+    CpuTimer0Regs.TCR.bit.TSS = 0;
+//    CPUTimer_startTimer(CPUTIMER0_BASE);
     EINT;
     ERTM;
 

@@ -11,8 +11,8 @@
 
 #include "bsp/bsp.h"
 #include "bsp/device_driver/fatfs/src/tff.h"
-#include "dac.h"
-#include "driverlib.h"
+//#include "dac.h"
+//#include "driverlib.h"
 #include "game.h"
 
 #include "threads/thread.h"
@@ -39,7 +39,14 @@ invader_t invaders[INVADER_COLUMNS*INVADER_ROWS];
 player_t player;
 
 
-#define STACK_SIZE  512U
+#define STACK_SIZE  1024U
+
+#pragma DATA_SECTION(updateBombStack,"ramgs2")
+#pragma DATA_SECTION(updateBulletStack,"ramgs2")
+#pragma DATA_SECTION(updateTaskStack,"ramgs2")
+#pragma DATA_SECTION(updateSpeakerStack,"ramgs3")
+#pragma DATA_SECTION(updateLcdStack,"ramgs3")
+#pragma DATA_SECTION(idleTaskStack,"ramgs3")
 
 static StaticTask_t updateBombBuffer;
 static StackType_t  updateBombStack[STACK_SIZE];
@@ -60,6 +67,7 @@ static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
 
 void setUpGame();
+inline void writeAll(uint16_t color);
 
 void __error__(char *pcFilename, unsigned long ulLine)
 {
@@ -239,5 +247,32 @@ void setUpGame()
 
     player.sprite._x = 0;
     player.sprite._y = 0;
+
+    GPIO_SetupPinOptions(32, GPIO_OUTPUT, 0);
+
+    GPIO_WritePin(32, 0);
+    writeAll(0);
+
+    GPIO_WritePin(32, 1);
+    writeAll(0);
+
+    GPIO_WritePin(32, 0);
 }
 
+inline void writeAll(uint16_t color)
+{
+    uint32_t addr = 0;
+
+    sram_write_multi_start();
+
+    for(uint32_t x = 0; x < 640; x++)
+    {
+        for(uint32_t y = 0; y < 480; y++)
+        {
+            addr = (x << 9) | y;
+            sram_write_multi(addr, color);
+        }
+    }
+
+    sram_write_multi_end();
+}

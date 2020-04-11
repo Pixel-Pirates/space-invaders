@@ -58,13 +58,17 @@ SECTIONS
    .reset           : > RESET,     PAGE = 0, TYPE = DSECT /* not used, */
 
    .stack           : > RAMM1,     PAGE = 1
-   .ebss            : >> RAMD1 | RAMGS1 | RAMGS2 | RAMGS3 | RAMGS7    PAGE = 1
+   .ebss            : >> RAMGS7 | RAMGS8 | RAMGS9,    PAGE = 1
    .econst          : > RAMGS1,    PAGE = 1
    .esysmem         : > RAMGS1,    PAGE = 1
    Filter_RegsFile  : > RAMGS2,	   PAGE = 1
 
-   ramgs0           : > RAMGS2,    PAGE = 1
-   ramgs1           : > RAMGS3,    PAGE = 1
+   ramgs2           : > RAMGS2,    PAGE = 1
+   ramgs3           : > RAMGS3,    PAGE = 1
+   ramgs4           : > RAMGS4,    PAGE = 1
+   ramgs5           : > RAMGS5,    PAGE = 1
+   ramgs14           : > RAMGS14,    PAGE = 1
+   ramgs15           : > RAMGS15,    PAGE = 1
 
 #ifdef __TI_COMPILER_VERSION__
    #if __TI_COMPILER_VERSION__ >= 15009000
@@ -89,12 +93,6 @@ SECTIONS
         PUTREADIDX :   TYPE = DSECT
     }
 
-    /* The following section definition are for SDFM examples */
-   Filter1_RegsFile : > RAMGS1,	PAGE = 1, fill=0x1111
-   Filter2_RegsFile : > RAMGS2,	PAGE = 1, fill=0x2222
-   Filter3_RegsFile : > RAMGS3,	PAGE = 1, fill=0x3333
-   Filter4_RegsFile : > RAMGS4,	PAGE = 1, fill=0x4444
-   Difference_RegsFile : >RAMGS5, 	PAGE = 1, fill=0x3333
 }
 
 /*

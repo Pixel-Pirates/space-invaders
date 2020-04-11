@@ -13,7 +13,7 @@
 #include "F28x_Project.h"
 
 //#include "F2837xD_types.h"
-#include "inc/hw_types.h"
+//#include "inc/hw_types.h"
 #include "../src/diskio.h"
 
 /*

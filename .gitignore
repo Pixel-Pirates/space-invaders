@@ -1,8 +1,15 @@
+#######
+## GAME
+#######
+common/*
+freertos_c28x-master/*
+Header/*
+targetConfigs/*
+
 #########
 ## OE App
 ########
 *.r
-
 
 #################
 ## Eclipse
@@ -221,3 +228,5 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+.ccsproject
+.ccsproject

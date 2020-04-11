@@ -33,6 +33,10 @@ uint16_t bmp_read_16(bmp_t* bmp, unsigned short* usBytesRead);
 void bmp_open(bmp_t* bmp, char* src);
 void bmp_read(bmp_t* bmp, char * data, int len, unsigned short* usBytesRead);
 
+#pragma DATA_SECTION(invaderAPixels,"ramgs4")
+#pragma DATA_SECTION(playerPixels,"ramgs4")
+#pragma DATA_SECTION(invaderBPixels,"ramgs5")
+
 char invaderAPixels[INVADER_SIZE];
 char playerPixels[PLAYER_SIZE];
 char invaderBPixels[INVADER_SIZE];
@@ -40,9 +44,15 @@ char invaderBPixels[INVADER_SIZE];
 void invaderTask() {
 
     unsigned short usBytesRead;
+#ifdef BMP
     bmp_open(&invader_a, "invaderA.bmp");
     bmp_open(&invader_b, "invaderB.bmp");
     bmp_open(&player_bmp, "shooter.bmp");
+#elif RAW
+    bmp_open(&invader_a, "invaderA.txt");
+    bmp_open(&invader_b, "invaderB.txt");
+    bmp_open(&player_bmp, "shooter.txt");
+#endif
     bmp_read(&player_bmp, playerPixels, PLAYER_SIZE, &usBytesRead);
     player.sprite.data = playerPixels;
 
@@ -119,6 +129,9 @@ void bmp_open(bmp_t* bmp, char* src)
     FRESULT fresult = f_open(&bmp->file, src, FA_READ);
     if(fresult != FR_OK) scia_msg("\rDid not open\n");
 
+    bmp->startAddress = 0;
+
+#ifdef BMP
     f_lseek(&bmp->file, 0xA);
     if(fresult != FR_OK) scia_msg("\rDid not seek\n");
 
@@ -130,8 +143,10 @@ void bmp_open(bmp_t* bmp, char* src)
 
     fresult = f_lseek(&bmp->file, startAddress);
     if(fresult != FR_OK) scia_msg("\rDid not seek\n");
-    xSemaphoreGive(sd_ready);
     bmp->startAddress = startAddress;
+#endif
+
+    xSemaphoreGive(sd_ready);
 }
 
 void bmp_read(bmp_t* bmp, char * data, int len, unsigned short* usBytesRead)

@@ -22,16 +22,23 @@ void sprite_draw(sprite_t* sprite)
     #ifdef VGA
 
     uint32_t addr = 0;
-    sram_write_multi_start();
-    for(uint32_t y = 0; y < sprite->height; y++)
+    for(uint16_t bufNum = 0; bufNum < 2; bufNum++)
     {
-        for(uint32_t x = 0; x < sprite->width; x++)
+        GPIO_WritePin(32, bufNum);
+        sram_write_multi_start();
+        for(uint32_t y = 0; y < sprite->height; y++)
+//        for(uint32_t y = 0; y < sprite->width; y++)
         {
-            addr = ((sprite->x + x) << 9) | (sprite->y + y);
-            sram_write_multi(addr, sprite->data[x + y*sprite->width]);
+//            for(uint32_t x = 0; x < sprite->height; x++)
+            for(uint32_t x = 0; x < sprite->width; x++)
+            {
+                addr = ((sprite->x + x) << 9) | (sprite->y + y);
+                uint32_t index = 2*(x*sprite->height + y);
+                sram_write_multi(addr, sprite->data[index+1]<<8 | sprite->data[index]);
+            }
         }
+        sram_write_multi_end();
     }
-    sram_write_multi_end();
 
     #elif LCD
 

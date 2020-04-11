@@ -59,7 +59,8 @@ void bombTask(){
         }
 
         bullet.y++;
-        draw_entinity(bullet, 0xFFE0);
+//        draw_entinity(bullet, 0xFFE0);
+        draw_entinity(bullet, 0xFFF);
         vTaskDelay(5 / portTICK_PERIOD_MS);
         draw_entinity(bullet, 0x0000);
 
@@ -72,6 +73,7 @@ void bombTask(){
         //bool bulletCollided(entinity_t entinity, entinity_t bullet)
         if (bulletCollided(player_e, bullet)) {
             gameOver = true;
+
             while(gameOver);
         }
 
