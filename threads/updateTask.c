@@ -7,20 +7,58 @@
 
 #include "../bsp/bsp.h"
 #include "../libs/printNum.h"
+#include "../bsp/device_driver/fatfs/src/tff.h"
+#include "../game.h"
+#include "../libs/sprite.h"
+
+#define RESTING_X 127
+
+extern player_t player;
+extern SemaphoreHandle_t player_ready;
+extern SemaphoreHandle_t bullet_ready;
+
+extern bool gameOver;
 
 void updateTask(void * pvParameters)
 {
-    //int waiting = false;
+    int cPressed = false;
+    sprite_draw(&player.sprite);
     while (1)
     {
-        scia_msg("\rupdate\n");
+        while(gameOver);
+        //scia_msg("\rupdate\n");
         nunchuck_refresh();
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(5 / portTICK_PERIOD_MS);
         nunchuck_send_read();
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(5 / portTICK_PERIOD_MS);
         nunchuck_t data = nunchuck_read();
-        nunchuck_print(&data);
+        //nunchuck_print(&data);
+        int16_t delta = data.joy_x - RESTING_X;
+        if (delta > 0)
+        {
+            xSemaphoreTake(player_ready, portMAX_DELAY);
+            player.sprite.x += 3;
+            xSemaphoreGive(player_ready);
+            sprite_draw(&player.sprite);
+        }
+        else if (delta < 0)
+        {
+            xSemaphoreTake(player_ready, portMAX_DELAY);
+            player.sprite.x -= 3;
+            xSemaphoreGive(player_ready);
+            sprite_draw(&player.sprite);
+        }
 
+        if (!data.button_c) {
+            if (!cPressed) {
+                xSemaphoreGive(bullet_ready);
+            }
+            cPressed = true;
+        }
+        else if (cPressed)
+        {
+            cPressed = false;
+        }
 
 
 

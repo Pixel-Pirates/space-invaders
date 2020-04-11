@@ -8,21 +8,44 @@
 
 
 
-#include "game.h"
+
 #include "bsp/bsp.h"
-#include "threads/updateTask.h"
-#include "threads/music.h"
-#include "threads/lcd.h"
 #include "bsp/device_driver/fatfs/src/tff.h"
 #include "dac.h"
 #include "driverlib.h"
-//#include "images/space_invader.h"
+#include "game.h"
 
-SemaphoreHandle_t wii_ready = NULL;
+#include "threads/thread.h"
+
+
+//Mutxes
+SemaphoreHandle_t wii_ready;
+SemaphoreHandle_t lcd_ready;
+SemaphoreHandle_t player_ready;
+SemaphoreHandle_t sd_ready;
+
+//binary
+SemaphoreHandle_t music_ready;
+SemaphoreHandle_t bullet_ready;
+
 static StaticSemaphore_t wiiReadyBuffer;
+static StaticSemaphore_t lcdReadyBuffer;
+static StaticSemaphore_t musicReadyBuffer;
+static StaticSemaphore_t playerReadyBuffer;
+static StaticSemaphore_t sdReadyBuffer;
+static StaticSemaphore_t bulletReadyBuffer;
+
+invader_t invaders[INVADER_COLUMNS*INVADER_ROWS];
+player_t player;
 
 
 #define STACK_SIZE  512U
+
+static StaticTask_t updateBombBuffer;
+static StackType_t  updateBombStack[STACK_SIZE];
+
+static StaticTask_t updateBulletBuffer;
+static StackType_t  updateBulletStack[STACK_SIZE];
 
 static StaticTask_t updateTaskBuffer;
 static StackType_t  updateTaskStack[STACK_SIZE];
@@ -30,8 +53,13 @@ static StackType_t  updateTaskStack[STACK_SIZE];
 static StaticTask_t updateSpeakerBuffer;
 static StackType_t  updateSpeakerStack[STACK_SIZE];
 
+static StaticTask_t updateLcdBuffer;
+static StackType_t  updateLcdStack[STACK_SIZE];
+
 static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
+
+void setUpGame();
 
 void __error__(char *pcFilename, unsigned long ulLine)
 {
@@ -117,32 +145,99 @@ void main(void)
     EINT;  // Enable Global interrupt INTM
     ERTM;  // Enable Global realtime interrupt DBGM
 
-    wii_ready = xSemaphoreCreateBinaryStatic( &wiiReadyBuffer );
+    setUpGame();
+
+    wii_ready = xSemaphoreCreateMutexStatic( &wiiReadyBuffer );
+    sd_ready = xSemaphoreCreateMutexStatic( &sdReadyBuffer );
+    player_ready = xSemaphoreCreateMutexStatic( &playerReadyBuffer );
+    lcd_ready = xSemaphoreCreateMutexStatic( &lcdReadyBuffer );
+
+    music_ready = xSemaphoreCreateBinaryStatic( &musicReadyBuffer );
+    bullet_ready = xSemaphoreCreateBinaryStatic( &bulletReadyBuffer );
+
 
     // Create the task without using any dynamic memory allocation.
-//    xTaskCreateStatic(updateTask,           // Function that implements the task.
-//                      "Update task",        // Text name for the task.
-//                      STACK_SIZE,           // Number of indexes in the xStack array.
-//                      ( void * ) 0,       // Parameter passed into the task.
-//                      tskIDLE_PRIORITY + 2, // Priority at which the task is created.
-//                      updateTaskStack,      // Array to use as the task's stack.
-//                      &updateTaskBuffer );  // Variable to hold the task's data structure.
-
-    xTaskCreateStatic(lcd,           // Function that implements the task.
-                      "Update speaker",        // Text name for the task.
+    xTaskCreateStatic(updateTask,           // Function that implements the task.
+                      "Update task",        // Text name for the task.
                       STACK_SIZE,           // Number of indexes in the xStack array.
                       ( void * ) 0,       // Parameter passed into the task.
                       tskIDLE_PRIORITY + 2, // Priority at which the task is created.
-                      updateSpeakerStack,      // Array to use as the task's stack.
-                      &updateSpeakerBuffer );  // Variable to hold the task's data structure.
+                      updateTaskStack,      // Array to use as the task's stack.
+                      &updateTaskBuffer );  // Variable to hold the task's data structure.
+
+    xTaskCreateStatic(speakerTask,           // Function that implements the task.
+                          "Seaker task",        // Text name for the task.
+                          STACK_SIZE,           // Number of indexes in the xStack array.
+                          ( void * ) 0,       // Parameter passed into the task.
+                          tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                          updateSpeakerStack,      // Array to use as the task's stack.
+                          &updateSpeakerBuffer );  // Variable to hold the task's data structure.
+
+    xTaskCreateStatic(invaderTask,           // Function that implements the task.
+                      "Invader task",        // Text name for the task.
+                      STACK_SIZE,           // Number of indexes in the xStack array.
+                      ( void * ) 0,       // Parameter passed into the task.
+                      tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                      updateLcdStack,      // Array to use as the task's stack.
+                      &updateLcdBuffer );  // Variable to hold the task's data structure.
+
+
+    xTaskCreateStatic(bulletTask,           // Function that implements the task.
+                          "bullet",        // Text name for the task.
+                          STACK_SIZE,           // Number of indexes in the xStack array.
+                          ( void * ) 0,       // Parameter passed into the task.
+                          tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                          updateBulletStack,      // Array to use as the task's stack.
+                          &updateBulletBuffer );  // Variable to hold the task's data structure.
+
+    xTaskCreateStatic(bombTask,           // Function that implements the task.
+                              "bomb",        // Text name for the task.
+                              STACK_SIZE,           // Number of indexes in the xStack array.
+                              ( void * ) 0,       // Parameter passed into the task.
+                              tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                              updateBombStack,      // Array to use as the task's stack.
+                              &updateBombBuffer );  // Variable to hold the task's data structure.
 
 
     vTaskStartScheduler();
 
 
 
-
-
     while(1);
+}
+
+
+void setUpGame()
+{
+    int i = 0;
+    for (int yIndex = 0; yIndex < INVADER_ROWS; yIndex++)
+    {
+        for (int xIndex = 0; xIndex < INVADER_COLUMNS; xIndex++)
+        {
+            invader_t invader = invaders[i];
+            invader.alive = true;
+            invader.sprite.x = xIndex*(INVADER_WIDTH + 10) + 10;
+            invader.sprite._x = 0;
+
+            invader.sprite.y = yIndex*(INVADER_HEIGHT + 10) + 10;
+            invader.sprite._y = 0;
+            invader.sprite.width = INVADER_HEIGHT;
+            invader.sprite.height = INVADER_WIDTH;
+            invader.sprite.undraw = false;
+            invaders[i] = invader;
+            i++;
+        }
+    }
+
+    player.lives = 3;
+    player.sprite.height = PLAYER_HEIGHT;
+    player.sprite.width = PLAYER_WIDTH;
+    player.sprite.undraw = true;
+
+    player.sprite.x = 50;
+    player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH;
+
+    player.sprite._x = 0;
+    player.sprite._y = 0;
 }
 

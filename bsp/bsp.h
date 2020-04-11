@@ -1,3 +1,7 @@
+
+#ifndef BSP_H_
+#define BSP_H_
+
 #include "F28x_Project.h"     // Device Headerfile and Examples Include File
 
 #include "FreeRTOS.h" /* Must come first. */
@@ -15,3 +19,5 @@
 #include "stdbool.h"
 
 void BSP_Init();
+
+#endif /* THREADS_LCD_H_ */

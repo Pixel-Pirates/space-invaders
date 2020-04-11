@@ -163,7 +163,7 @@ void LCD_Text(uint16_t Xpos, uint16_t Ypos, char *str,uint16_t Color);
 * Return         : None
 * Attention      : None
 *******************************************************************************/
-inline void LCD_Write_Data_Only(uint16_t data);
+void LCD_Write_Data_Only(uint16_t data);
 
 /*******************************************************************************
 * Function Name  : LCD_Clear
@@ -204,7 +204,7 @@ inline void LCD_WriteData(uint16_t data);
 * Return         : LCD Register Value.
 * Attention      : None
 *******************************************************************************/
-inline uint16_t LCD_ReadReg(uint16_t LCD_reg);
+uint16_t LCD_ReadReg(uint16_t LCD_reg);
 
 /*******************************************************************************
 * Function Name  : LCD_WriteIndex
@@ -214,7 +214,7 @@ inline uint16_t LCD_ReadReg(uint16_t LCD_reg);
 * Return         : None
 * Attention      : None
 *******************************************************************************/
-inline void LCD_WriteIndex(uint16_t index);
+void LCD_WriteIndex(uint16_t index);
 
 /*******************************************************************************
  * Function Name  : SPISendRecvTPByte
@@ -255,7 +255,7 @@ inline uint16_t SPISendRecvByte(uint16_t byte);
 * Return         : None
 * Attention      : None
 *******************************************************************************/
-inline void LCD_Write_Data_Start(void);
+void LCD_Write_Data_Start(void);
 
 /*******************************************************************************
 * Function Name  : LCD_ReadData
@@ -276,7 +276,7 @@ inline uint16_t LCD_ReadData();
 * Return         : None
 * Attention      : None
 *******************************************************************************/
-inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue);
+void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue);
 
 /*******************************************************************************
 * Function Name  : LCD_SetCursor
@@ -287,7 +287,7 @@ inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue);
 * Return         : None
 * Attention      : None
 *******************************************************************************/
-inline void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos );
+void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos );
 
 /*******************************************************************************
 * Function Name  : LCD_Init

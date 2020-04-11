@@ -24,7 +24,6 @@ static void Delay(unsigned long interval)
 {
     while(interval > 0)
     {
-        int i = 0;
         F28x_usDelay(83000);
         interval--;
     }
@@ -193,52 +192,24 @@ static void LCD_reset()
  *******************************************************************************/
 void LCD_DrawRectangle(int16_t xStart, int16_t xEnd, int16_t yStart, int16_t yEnd, uint16_t Color)
 {
-    if (xStart > MAX_SCREEN_X || yStart > MAX_SCREEN_Y)
-        return;
+    LCD_WriteReg(HOR_ADDR_START_POS, yStart);     /* Horizontal GRAM Start Address */
+    LCD_WriteReg(HOR_ADDR_END_POS, yEnd-1);  /* Horizontal GRAM End Address */
+    LCD_WriteReg(VERT_ADDR_START_POS, xStart);    /* Vertical GRAM Start Address */
+    LCD_WriteReg(VERT_ADDR_END_POS, xEnd-1); /* Vertical GRAM Start Address */
+    LCD_SetCursor(xStart, yStart);
 
-    if (xEnd > MAX_SCREEN_X)
-        xEnd = MAX_SCREEN_X;
+    LCD_WriteIndex(DATA_IN_GRAM);   //Draws rectangle on screen
+    SPI_CS_LOW;
+    LCD_Write_Data_Start();
 
-    if (yEnd > MAX_SCREEN_Y)
-        yEnd = MAX_SCREEN_Y;
+    uint32_t size = ((xEnd - xStart) + 1)*((yEnd - yStart) + 1);
 
-//    LCD_WriteReg(HOR_ADDR_START_POS, yStart);     /* Horizontal GRAM Start Address */
-//    LCD_WriteReg(HOR_ADDR_END_POS, yEnd);  /* Horizontal GRAM End Address */
-//    LCD_WriteReg(VERT_ADDR_START_POS, xStart);    /* Vertical GRAM Start Address */
-//    LCD_WriteReg(VERT_ADDR_END_POS, xEnd);
-//    LCD_SetCursor(xStart, yStart);
-//
-//    int16_t numPixels = ((yEnd - yStart) + 1)*((xEnd - xStart) + 1);
-//    LCD_Send_Data(Color, numPixels);
-
-
-
-    int32_t dy = (yEnd - yStart);
-    int32_t dx = (xEnd - xStart);
-
-
-    int county = 0;
-    for (;county < dy; county++)
-    {
-        LCD_WriteReg(GRAM_HORIZONTAL_ADDRESS_SET, yStart + county);
-        LCD_WriteReg(GRAM_VERTICAL_ADDRESS_SET, xStart);
-
-
-        LCD_WriteIndex(GRAM);
-
-
-        SPI_CS_LOW;
-        LCD_Write_Data_Start();
-
-        int countx = 0;
-        for (;countx < dx; countx++)
-        {
-            LCD_Write_Data_Only(Color);
-        }
-        SPI_CS_HIGH;
-
+    uint32_t i;
+    for(i = 0;i < size;i++){
+        LCD_Write_Data_Only(Color);
     }
 
+    SPI_CS_HIGH;
 }
 
 /******************************************************************************
@@ -373,7 +344,7 @@ void LCD_SetPoint(uint16_t Xpos, uint16_t Ypos, uint16_t color)
  * Return         : None
  * Attention      : None
  *******************************************************************************/
-inline void LCD_Write_Data_Only(uint16_t data)
+void LCD_Write_Data_Only(uint16_t data)
 {
     SPISendRecvByte((data >>   8));  /* Write D8..D15                */
     SPISendRecvByte((data & 0xFF));  /* Write D0..D7                 */
@@ -387,7 +358,7 @@ inline void LCD_Write_Data_Only(uint16_t data)
  * Return         : None
  * Attention      : None
  ***************************************************FRAME_RATE_AND_COLOR_CONTROL****************************/
-inline void LCD_WriteData(uint16_t data)
+void LCD_WriteData(uint16_t data)
 {
     SPI_CS_LOW;
 
@@ -405,7 +376,7 @@ inline void LCD_WriteData(uint16_t data)
  * Return         : LCD Register Value.
  * Attention      : None
  *******************************************************************************/
-inline uint16_t LCD_ReadReg(uint16_t LCD_Reg)
+uint16_t LCD_ReadReg(uint16_t LCD_Reg)
 {
     LCD_WriteIndex(LCD_Reg);
     return LCD_ReadData();
@@ -419,7 +390,7 @@ inline uint16_t LCD_ReadReg(uint16_t LCD_Reg)
  * Return         : None
  * Attention      : None
  *******************************************************************************/
-inline void LCD_WriteIndex(uint16_t index)
+void LCD_WriteIndex(uint16_t index)
 {
     SPI_CS_LOW;
 
@@ -470,7 +441,7 @@ inline uint16_t SPISendRecvByte(uint16_t byte)
  * Return         : None
  * Attention      : None
  *******************************************************************************/
-inline void LCD_Write_Data_Start(void)
+void LCD_Write_Data_Start(void)
 {
     SPISendRecvByte(SPI_START | SPI_WR | SPI_DATA);    /* Write : RS = 1, RW = 0 */
 }
@@ -506,7 +477,7 @@ inline uint16_t LCD_ReadData()
  * Return         : None
  * Attention      : None
  *******************************************************************************/
-inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue)
+void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue)
 {
     LCD_WriteIndex(LCD_Reg);
     LCD_WriteData(LCD_RegValue);
@@ -521,10 +492,10 @@ inline void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue)
  * Return         : None
  * Attention      : None
  *******************************************************************************/
-inline void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos )
+void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos )
 {
-    LCD_WriteReg(GRAM_VERTICAL_ADDRESS_SET, Ypos);
-    LCD_WriteReg(GRAM_HORIZONTAL_ADDRESS_SET, Xpos);
+    LCD_WriteReg(GRAM_VERTICAL_ADDRESS_SET, Xpos);
+    LCD_WriteReg(GRAM_HORIZONTAL_ADDRESS_SET, Ypos);
 }
 
 /*******************************************************************************
