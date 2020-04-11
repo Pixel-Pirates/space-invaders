@@ -4,35 +4,40 @@
  *  Created on: Mar 28, 2020
  *      Author: Raymond Bernardo
  */
-#include "../bsp.h"
-#include "driverlib.h"
+//#include "driverlib.h"
+#include <F28x_Project.h>
 
-void OE_select()
-{
-    GPIO_writePin(56, 0);
-}
-
-void OE_deselect()
-{
-    GPIO_writePin(56, 1);
-}
-
-void WE_select()
-{
-    GPIO_writePin(139, 0);
-}
-
-void WE_deselect()
-{
-    GPIO_writePin(139, 1);
-}
-
+#define OE_select GPIO_WritePin(56, 0)
+#define OE_deselect GPIO_WritePin(56, 1)
+#define WE_select GPIO_WritePin(139, 0)
+#define WE_deselect GPIO_WritePin(139, 1)
 
 #define PORTA_MASK (((uint32_t)1 << 14) | ((uint32_t)1 << 15) | ((uint32_t)1 << 16) | ((uint32_t)1 << 22) | ((uint32_t)1 << 24) | ((uint32_t)1 << 25) | ((uint32_t)1 << 26) | ((uint32_t)1 << 27) | ((uint32_t)1 << 29))
 #define PORTB_MASK (((uint32_t)1 << (41 - 32)) | ((uint32_t)1 << (63 - 32)) | ((uint32_t)1 << (52 - 32)) | ((uint32_t)1 << (52 - 32)) | ((uint32_t)1 << (40 - 32)))
 #define PORTC_MASK (((uint32_t)1 << 31) | ((uint32_t)1 << 30) | ((uint32_t)1 << 3) | ((uint32_t)1 << 2) | ((uint32_t)1 << 1) | ((uint32_t)1 << 0))
 
-void set_address(uint32_t addr)
+#define A0
+#define A1
+#define A2
+#define A3
+#define A4
+#define A5
+#define A6
+#define A7
+#define A8
+#define A9
+#define A10
+#define A11
+#define A12
+#define A13
+#define A14
+#define A15
+#define A16
+#define A17
+#define A18
+#define A19
+
+inline void set_address(uint32_t addr)
 {
     //GPIO14 - GPIO16 | A0 - A2
     uint32_t portA = (addr & 0b111)  << 14;
@@ -42,11 +47,9 @@ void set_address(uint32_t addr)
     portA |= (addr & 0b11110000) << (24 - 4);
     //GPIO29 | A8
     portA |= (addr & 0b100000000) << (29 - 8);
-    GPIO_setPortPins(GPIO_PORT_A, portA);
-    GPIO_clearPortPins(GPIO_PORT_A, (~portA) & PORTA_MASK);
 
     // GPIO97 - A9
-    GPIO_writePin(97, (addr >> 9) & 1);
+    GPIO_WritePin(97, (addr >> 9) & 1);
 
     uint32_t portC = 0;
     // GPIO95 - A10
@@ -74,167 +77,136 @@ void set_address(uint32_t addr)
     portB |= (addr & ((uint32_t)1 << 19)) >> (19 - (40 - 32));
 
 
-    GPIO_setPortPins(GPIO_PORT_B, portB);
-    GPIO_clearPortPins(GPIO_PORT_B, (~portB) & PORTB_MASK);
+    GpioDataRegs.GPASET.all = portA;
+    GpioDataRegs.GPACLEAR.all = (~portA) & PORTA_MASK;
 
-    GPIO_setPortPins(GPIO_PORT_C, portC);
-    GPIO_clearPortPins(GPIO_PORT_C, (~portC) & PORTC_MASK);
+    GpioDataRegs.GPBSET.all = portB;
+    GpioDataRegs.GPBCLEAR.all = (~portB) & PORTB_MASK;
+
+    GpioDataRegs.GPCSET.all = portC;
+    GpioDataRegs.GPCCLEAR.all = (~portC) & PORTC_MASK;
 }
 
-uint16_t get_data()
+inline uint16_t get_data()
 {
-    return GPIO_readPortData(GPIO_PORT_A) & 0x7FF;
+    return  GpioDataRegs.GPADAT.all & 0x7FF;
 }
 
-void set_data(uint16_t data)
+inline void set_data(uint16_t data)
 {
-    GPIO_setPortPins(GPIO_PORT_A, data & 0x7FF);
-    GPIO_clearPortPins(GPIO_PORT_A, (~data) & 0x7FF);
+    GpioDataRegs.GPASET.all = data & 0x7FF;
+    GpioDataRegs.GPACLEAR.all = (~data) & 0x7FF;
 }
 
-void set_data_in()
+static inline void set_data_in()
 {
-    GPIO_setDirectionMode(0, GPIO_DIR_MODE_IN);    // GPIO0 - D0
-    GPIO_setDirectionMode(1, GPIO_DIR_MODE_IN);    // GPIO1 - D1
-    GPIO_setDirectionMode(2, GPIO_DIR_MODE_IN);    // GPIO2 - D2
-    GPIO_setDirectionMode(3, GPIO_DIR_MODE_IN);    // GPIO3 - D3
-    GPIO_setDirectionMode(4, GPIO_DIR_MODE_IN);    // GPIO4 - D4
-    GPIO_setDirectionMode(5, GPIO_DIR_MODE_IN);    // GPIO5 - D5
-    GPIO_setDirectionMode(6, GPIO_DIR_MODE_IN);    // GPIO6 - D6
-    GPIO_setDirectionMode(7, GPIO_DIR_MODE_IN);    // GPIO7 - D7
+    GPIO_SetupPinOptions(0, GPIO_INPUT, 0);     // GPIO0 - D0
+    GPIO_SetupPinOptions(1, GPIO_INPUT, 0);     // GPIO1 - D1
+    GPIO_SetupPinOptions(2, GPIO_INPUT, 0);     // GPIO2 - D2
+    GPIO_SetupPinOptions(3, GPIO_INPUT, 0);     // GPIO3 - D3
+    GPIO_SetupPinOptions(4, GPIO_INPUT, 0);     // GPIO4 - D4
+    GPIO_SetupPinOptions(5, GPIO_INPUT, 0);     // GPIO5 - D5
+    GPIO_SetupPinOptions(6, GPIO_INPUT, 0);     // GPIO6 - D6
+    GPIO_SetupPinOptions(7, GPIO_INPUT, 0);     // GPIO7 - D7
+    GPIO_SetupPinOptions(8, GPIO_INPUT, 0);     // GPIO8 - D8
+    GPIO_SetupPinOptions(9, GPIO_INPUT, 0);     // GPIO9 - D9
+    GPIO_SetupPinOptions(10, GPIO_INPUT, 0);    // GPIO10 - D10
+    GPIO_SetupPinOptions(11, GPIO_INPUT, 0);    // GPIO11 - D11
 }
 
-void set_data_out()
+static inline void set_data_out()
 {
-    GPIO_setDirectionMode(0, GPIO_DIR_MODE_OUT);    // GPIO0 - D0
-    GPIO_setDirectionMode(1, GPIO_DIR_MODE_OUT);    // GPIO1 - D1
-    GPIO_setDirectionMode(2, GPIO_DIR_MODE_OUT);    // GPIO2 - D2
-    GPIO_setDirectionMode(3, GPIO_DIR_MODE_OUT);    // GPIO3 - D3
-    GPIO_setDirectionMode(4, GPIO_DIR_MODE_OUT);    // GPIO4 - D4
-    GPIO_setDirectionMode(5, GPIO_DIR_MODE_OUT);    // GPIO5 - D5
-    GPIO_setDirectionMode(6, GPIO_DIR_MODE_OUT);    // GPIO6 - D6
-    GPIO_setDirectionMode(7, GPIO_DIR_MODE_OUT);    // GPIO7 - D7
+    GPIO_SetupPinOptions(0, GPIO_OUTPUT, 0);     // GPIO0 - D0
+    GPIO_SetupPinOptions(1, GPIO_OUTPUT, 0);     // GPIO1 - D1
+    GPIO_SetupPinOptions(2, GPIO_OUTPUT, 0);     // GPIO2 - D2
+    GPIO_SetupPinOptions(3, GPIO_OUTPUT, 0);     // GPIO3 - D3
+    GPIO_SetupPinOptions(4, GPIO_OUTPUT, 0);     // GPIO4 - D4
+    GPIO_SetupPinOptions(5, GPIO_OUTPUT, 0);     // GPIO5 - D5
+    GPIO_SetupPinOptions(6, GPIO_OUTPUT, 0);     // GPIO6 - D6
+    GPIO_SetupPinOptions(7, GPIO_OUTPUT, 0);     // GPIO7 - D7
+    GPIO_SetupPinOptions(8, GPIO_OUTPUT, 0);     // GPIO8 - D8
+    GPIO_SetupPinOptions(9, GPIO_OUTPUT, 0);     // GPIO9 - D9
+    GPIO_SetupPinOptions(10, GPIO_OUTPUT, 0);    // GPIO10 - D10
+    GPIO_SetupPinOptions(11, GPIO_OUTPUT, 0);    // GPIO11 - D11
 }
 
 bool outputIn = false;
 
 uint16_t sram_read(uint32_t addr)
 {
-    //set_address(addr);
-    //GPIO14 - GPIO16 | A0 - A2
-    uint32_t portA = (addr & 0b111)  << 14;
-    //GPIO22 | A3
-    portA |= (addr & 0b1000) << (22 - 3);
-    //GPIO24 - GPIO27 | A4 - A7
-    portA |= (addr & 0b11110000) << (24 - 4);
-    //GPIO29 | A8
-    portA |= (addr & 0b100000000) << (29 - 8);
-    GPIO_setPortPins(GPIO_PORT_A, portA);
-    GPIO_clearPortPins(GPIO_PORT_A, (~portA) & PORTA_MASK);
-
-    // GPIO97 - A9
-    GPIO_writePin(97, (addr >> 9) & 1);
-
-    uint32_t portC = 0;
-    // GPIO95 - A10
-    portC |= (addr & ((uint32_t)1 << 10)) << ((95 - 64) - 10);
-    // GPIO94 - A11
-    portC |= (addr & ((uint32_t)1 << 11)) << ((94 - 64) - 11);
-    // GPIO67 - A12
-    portC |= (addr & ((uint32_t)1 << 12)) >> (12 - (67 - 64));
-    // GPIO66 - A13
-    portC |= (addr & ((uint32_t)1 << 13)) >> (13 - (66 - 64));
-
-
-    uint32_t portB = 0;
-    // GPIO41 - A14
-    portB |= (addr & ((uint32_t)1 << 14)) >> (14 - (41 - 32));
-    // GPIO65 - A15
-    portC |= (addr & ((uint32_t)1 << 15)) >> (15 - (65 - 64));
-    // GPIO64 - A16
-    portC |= (addr & ((uint32_t)1 << 16)) >> (16 - (64 - 64));
-    // GPIO63 - A17
-    portB |= (addr & ((uint32_t)1 << 17)) << ((63 - 32) - 17);
-    // GPIO52 - A18
-    portB |= (addr & ((uint32_t)1 << 18)) << ((52 - 32) - 18);
-    // GPIO40 - A19
-    portB |= (addr & ((uint32_t)1 << 19)) >> (19 - (40 - 32));
-
-
-    GPIO_setPortPins(GPIO_PORT_B, portB);
-    GPIO_clearPortPins(GPIO_PORT_B, (~portB) & PORTB_MASK);
-
-    GPIO_setPortPins(GPIO_PORT_C, portC);
-    GPIO_clearPortPins(GPIO_PORT_C, (~portC) & PORTC_MASK);
+    set_address(addr);
 
     //set_data_in();
     if (!outputIn) {
-        GPIO_setDirectionMode(0, GPIO_DIR_MODE_IN);    // GPIO0 - D0
-        GPIO_setDirectionMode(1, GPIO_DIR_MODE_IN);    // GPIO1 - D1
-        GPIO_setDirectionMode(2, GPIO_DIR_MODE_IN);    // GPIO2 - D2
-        GPIO_setDirectionMode(3, GPIO_DIR_MODE_IN);    // GPIO3 - D3
-        GPIO_setDirectionMode(4, GPIO_DIR_MODE_IN);    // GPIO4 - D4
-        GPIO_setDirectionMode(5, GPIO_DIR_MODE_IN);    // GPIO5 - D5
-        GPIO_setDirectionMode(6, GPIO_DIR_MODE_IN);    // GPIO6 - D6
-        GPIO_setDirectionMode(7, GPIO_DIR_MODE_IN);    // GPIO7 - D7
+        set_data_in();
         outputIn = true;
     }
-    //OE_select();
-    GPIO_writePin(56, 0);
+    OE_select;
     //F28x_usDelay(1);
-    //return get_data();
-     return GPIO_readPortData(GPIO_PORT_A) & 0x7FF;
+    return get_data();
 }
 
 void sram_write(uint32_t addr, uint16_t data)
 {
     set_address(addr);
-    OE_deselect();
-    WE_select();
+    OE_deselect;
+    WE_select;
     set_data_out();
     set_data(data);
-    F28x_usDelay(1);
-    WE_deselect();
+    //F28x_usDelay(1);
+    WE_deselect;
+}
+
+void sram_write_multi_start()
+{
+    OE_deselect;
+    WE_select;
+    set_data_out();
+}
+
+void sram_write_multi_end()
+{
+    WE_deselect;
+}
+
+void sram_write_multi(uint32_t addr, uint16_t data)
+{
+    set_address(addr);
+    set_data(data);
+    //F28x_usDelay(1);
 }
 
 void sram_init()
 {
-    GPIO_setDirectionMode(0, GPIO_DIR_MODE_IN);    // GPIO0 - D0
-    GPIO_setDirectionMode(1, GPIO_DIR_MODE_IN);    // GPIO1 - D1
-    GPIO_setDirectionMode(2, GPIO_DIR_MODE_IN);    // GPIO2 - D2
-    GPIO_setDirectionMode(3, GPIO_DIR_MODE_IN);    // GPIO3 - D3
-    GPIO_setDirectionMode(4, GPIO_DIR_MODE_IN);    // GPIO4 - D4
-    GPIO_setDirectionMode(5, GPIO_DIR_MODE_IN);    // GPIO5 - D5
-    GPIO_setDirectionMode(6, GPIO_DIR_MODE_IN);    // GPIO6 - D6
-    GPIO_setDirectionMode(7, GPIO_DIR_MODE_IN);    // GPIO7 - D7
+    set_data_in();
 
-    GPIO_setDirectionMode(14, GPIO_DIR_MODE_OUT);    // GPIO14 - A0
-    GPIO_setDirectionMode(15, GPIO_DIR_MODE_OUT);    // GPIO15 - A1
-    GPIO_setDirectionMode(16, GPIO_DIR_MODE_OUT);    // GPIO16 - A2
-    GPIO_setDirectionMode(22, GPIO_DIR_MODE_OUT);    // GPIO22 - A3
-    GPIO_setDirectionMode(24, GPIO_DIR_MODE_OUT);    // GPIO24 - A4
-    GPIO_setDirectionMode(25, GPIO_DIR_MODE_OUT);    // GPIO25 - A5
-    GPIO_setDirectionMode(26, GPIO_DIR_MODE_OUT);    // GPIO26 - A6
-    GPIO_setDirectionMode(27, GPIO_DIR_MODE_OUT);    // GPIO27 - A7
-    GPIO_setDirectionMode(29, GPIO_DIR_MODE_OUT);    // GPIO29 - A8
-    GPIO_setDirectionMode(97, GPIO_DIR_MODE_OUT);    // GPIO97 - A9
-    GPIO_setDirectionMode(95, GPIO_DIR_MODE_OUT);    // GPIO95 - A10
-    GPIO_setDirectionMode(94, GPIO_DIR_MODE_OUT);    // GPIO94 - A11
-    GPIO_setDirectionMode(67, GPIO_DIR_MODE_OUT);    // GPIO67 - A12
-    GPIO_setDirectionMode(66, GPIO_DIR_MODE_OUT);    // GPIO66 - A13
-    GPIO_setDirectionMode(41, GPIO_DIR_MODE_OUT);    // GPIO41 - A14
-    GPIO_setDirectionMode(65, GPIO_DIR_MODE_OUT);    // GPIO65 - A15
-    GPIO_setDirectionMode(64, GPIO_DIR_MODE_OUT);    // GPIO64 - A16
-    GPIO_setDirectionMode(63, GPIO_DIR_MODE_OUT);    // GPIO63 - A17
-    GPIO_setDirectionMode(52, GPIO_DIR_MODE_OUT);    // GPIO52 - A18
-    GPIO_setDirectionMode(40, GPIO_DIR_MODE_OUT);    // GPIO40 - A19
+    GPIO_SetupPinOptions(14, GPIO_OUTPUT, 0);    // GPIO14 - A0
+    GPIO_SetupPinOptions(15, GPIO_OUTPUT, 0);    // GPIO15 - A1
+    GPIO_SetupPinOptions(16, GPIO_OUTPUT, 0);    // GPIO16 - A2
+    GPIO_SetupPinOptions(22, GPIO_OUTPUT, 0);    // GPIO22 - A3
+    GPIO_SetupPinOptions(24, GPIO_OUTPUT, 0);    // GPIO24 - A4
+    GPIO_SetupPinOptions(25, GPIO_OUTPUT, 0);    // GPIO25 - A5
+    GPIO_SetupPinOptions(26, GPIO_OUTPUT, 0);    // GPIO26 - A6
+    GPIO_SetupPinOptions(27, GPIO_OUTPUT, 0);    // GPIO27 - A7
+    GPIO_SetupPinOptions(29, GPIO_OUTPUT, 0);    // GPIO29 - A8
+    GPIO_SetupPinOptions(97, GPIO_OUTPUT, 0);    // GPIO97 - A9
+    GPIO_SetupPinOptions(95, GPIO_OUTPUT, 0);    // GPIO95 - A10
+    GPIO_SetupPinOptions(94, GPIO_OUTPUT, 0);    // GPIO94 - A11
+    GPIO_SetupPinOptions(67, GPIO_OUTPUT, 0);    // GPIO67 - A12
+    GPIO_SetupPinOptions(66, GPIO_OUTPUT, 0);    // GPIO66 - A13
+    GPIO_SetupPinOptions(41, GPIO_OUTPUT, 0);    // GPIO41 - A14
+    GPIO_SetupPinOptions(65, GPIO_OUTPUT, 0);    // GPIO65 - A15
+    GPIO_SetupPinOptions(64, GPIO_OUTPUT, 0);    // GPIO64 - A16
+    GPIO_SetupPinOptions(63, GPIO_OUTPUT, 0);    // GPIO63 - A17
+    GPIO_SetupPinOptions(52, GPIO_OUTPUT, 0);    // GPIO52 - A18
+    GPIO_SetupPinOptions(40, GPIO_OUTPUT, 0);    // GPIO40 - A19
 
-    GPIO_setDirectionMode(139, GPIO_DIR_MODE_OUT);    // GPIO139 - WE
-    GPIO_setDirectionMode(56, GPIO_DIR_MODE_OUT);    // GPIO56 - OE
-    OE_deselect();
-    WE_deselect();
+    GPIO_SetupPinOptions(139, GPIO_OUTPUT, 0);    // GPIO139 - WE
+    GPIO_SetupPinOptions(56, GPIO_OUTPUT, 0);    // GPIO56 - OE
+    OE_deselect;
+    WE_deselect;
 
-//    scia_msg("TEST - READ WRITE\n\r");
+    //scia_msg("TEST - READ WRITE\n\r");
 
 //    uint32_t i;
 //    for (i = 0; i < ((uint32_t)1 << 20); i++)
@@ -262,4 +234,3 @@ void sram_init()
 //    printNum((uint32_t)1 << 20);
 //    scia_msg("\n\r");
 }
-

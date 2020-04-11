@@ -17,9 +17,25 @@ void sprite_draw(sprite_t* sprite)
         return;
     }
 
-    int len = sprite->height*sprite->width*2;
-
     xSemaphoreTake(lcd_ready, portMAX_DELAY);
+
+    #ifdef VGA
+
+    uint32_t addr = 0;
+    sram_write_multi_start();
+    for(uint32_t y = 0; y < sprite->height; y++)
+    {
+        for(uint32_t x = 0; x < sprite->width; x++)
+        {
+            addr = ((sprite->x + x) << 9) | (sprite->y + y);
+            sram_write_multi(addr, sprite->data[x + y*sprite->width]);
+        }
+    }
+    sram_write_multi_end();
+
+    #elif LCD
+
+    int len = sprite->height*sprite->width*2;
     LCD_WriteReg(HOR_ADDR_START_POS, sprite->y);     /* Horizontal GRAM Start Address */
     LCD_WriteReg(HOR_ADDR_END_POS, sprite->y + sprite->height - 1);  /* Horizontal GRAM End Address */
     LCD_WriteReg(VERT_ADDR_START_POS, sprite->x);    /* Vertical GRAM Start Address */
@@ -38,6 +54,10 @@ void sprite_draw(sprite_t* sprite)
         LCD_Write_Data_Only(data16);
     }
     SPI_CS_HIGH;
+
+    #endif
+
+
     sprite->_x = sprite->x;
     sprite->_y = sprite->y;
     xSemaphoreGive(lcd_ready);

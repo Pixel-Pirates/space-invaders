@@ -6,7 +6,11 @@ static FATFS g_sFatFs;
 void BSP_Init()
 {
     uart_init();
+
+    #ifdef LCD
     LCD_Init(false);
+    #endif
+
     I2CA_Init();
     nunchuck_init();
     sram_init();
