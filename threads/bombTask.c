@@ -13,11 +13,10 @@
 
 extern invader_t invaders[27];
 extern player_t player;
-extern SemaphoreHandle_t lcd_ready;
 
 void draw_entinity(entinity_t entinity, uint16_t color);
 
-int gameOver = false;
+extern volatile int gameOver;
 
 void bombTask(){
     bool activeBomb = false;
@@ -27,6 +26,8 @@ void bombTask(){
     bullet.height = 5;
     bullet.width = 4;
     while(1) {
+        while(gameOver);
+
         if (!activeBomb) {
             int invaderCount = 0;
             invader_t firstRow[INVADER_COLUMNS];
@@ -70,11 +71,10 @@ void bombTask(){
         player_e.x = player.sprite.x;
         player_e.y = player.sprite.y;
 
-        //bool bulletCollided(entinity_t entinity, entinity_t bullet)
         if (bulletCollided(player_e, bullet)) {
             gameOver = true;
+            activeBomb = false;
 
-            while(gameOver);
         }
 
         if (bullet.y + bullet.height  >= MAX_SCREEN_Y - 1) {

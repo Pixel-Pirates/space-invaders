@@ -15,19 +15,21 @@
 
 extern SemaphoreHandle_t bullet_ready;
 extern SemaphoreHandle_t lcd_ready;
-extern player_t player;
 extern invader_t invaders[27];
-void draw_entinity(entinity_t entinity, uint16_t color);
-extern bool gameOver;
+extern player_t player;
+extern volatile bool gameOver;
 extern bool playerShootSound;
+
+void draw_entinity(entinity_t entinity, uint16_t color);
 
 void bulletTask()
 {
     while(1)
     {
-        while(gameOver);
         xSemaphoreTake(bullet_ready, portMAX_DELAY);
+    #ifdef SPEAKER
         playerShootSound = true;
+    #endif
         entinity_t bullet;
         bullet.width = BULLET_WIDTH;
         bullet.height = BULLET_HEIGHT;
@@ -37,8 +39,7 @@ void bulletTask()
         while(1)
         {
             draw_entinity(bullet, 0x0000);
-
-            if (bullet.y <= 0)
+            if (bullet.y <= 0 || gameOver)
             {
                 break;
             }

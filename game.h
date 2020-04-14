@@ -2,11 +2,13 @@
 #ifndef GAME_H_
 #define GAME_H_
 
-#define VGA 1
-//#define LCD 0
+//#define VGA 0
+#define LCD 1
 
-#define RAW 1
-//#define BMP 0
+//#define RAW 0
+#define BMP 1
+
+//#define SPEAKER 1
 
 #define INVADER_ROWS 3
 #define INVADER_COLUMNS 7
@@ -28,10 +30,10 @@ typedef struct sprite
     FIL file; //sd card file
     char * data;
     bool loaded;
-    uint32_t x;
-    uint32_t y;
-    uint32_t _x; //previous x
-    uint32_t _y; //previous y
+    int32_t x;
+    int32_t y;
+    int32_t _x; //previous x
+    int32_t _y; //previous y
     uint32_t width;
     uint32_t height;
     bool undraw;

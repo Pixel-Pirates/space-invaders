@@ -10,6 +10,9 @@
 #include "timers.h"   /* Software timer related API prototypes. */
 #include "semphr.h"   /* Semaphore related API prototypes. */
 
+#include "device_driver/fatfs/src/tff.h"
+#include "../game.h"
+
 #include "board_driver/i2c.h"
 #include "board_driver/uart.h"
 #include "device_driver/nunchuck.h"

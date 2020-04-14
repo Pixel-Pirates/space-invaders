@@ -11,8 +11,6 @@
 
 #include "bsp/bsp.h"
 #include "bsp/device_driver/fatfs/src/tff.h"
-//#include "dac.h"
-//#include "driverlib.h"
 #include "game.h"
 
 #include "threads/thread.h"
@@ -65,6 +63,8 @@ static StackType_t  updateLcdStack[STACK_SIZE];
 
 static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
+
+extern volatile bool gameOver = true;
 
 void setUpGame();
 inline void writeAll(uint16_t color);
@@ -172,7 +172,7 @@ void main(void)
                       tskIDLE_PRIORITY + 2, // Priority at which the task is created.
                       updateTaskStack,      // Array to use as the task's stack.
                       &updateTaskBuffer );  // Variable to hold the task's data structure.
-
+#ifdef SPEAKER
     xTaskCreateStatic(speakerTask,           // Function that implements the task.
                           "Seaker task",        // Text name for the task.
                           STACK_SIZE,           // Number of indexes in the xStack array.
@@ -180,6 +180,7 @@ void main(void)
                           tskIDLE_PRIORITY + 2, // Priority at which the task is created.
                           updateSpeakerStack,      // Array to use as the task's stack.
                           &updateSpeakerBuffer );  // Variable to hold the task's data structure.
+#endif
 
     xTaskCreateStatic(invaderTask,           // Function that implements the task.
                       "Invader task",        // Text name for the task.
@@ -225,10 +226,7 @@ void setUpGame()
             invader_t invader = invaders[i];
             invader.alive = true;
             invader.sprite.x = xIndex*(INVADER_WIDTH + 10) + 10;
-            invader.sprite._x = 0;
-
             invader.sprite.y = yIndex*(INVADER_HEIGHT + 10) + 10;
-            invader.sprite._y = 0;
             invader.sprite.width = INVADER_HEIGHT;
             invader.sprite.height = INVADER_WIDTH;
             invader.sprite.undraw = false;
@@ -245,9 +243,7 @@ void setUpGame()
     player.sprite.x = 50;
     player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH;
 
-    player.sprite._x = 0;
-    player.sprite._y = 0;
-
+#ifdef VGA
     GPIO_SetupPinOptions(32, GPIO_OUTPUT, 0);
 
     GPIO_WritePin(32, 0);
@@ -257,8 +253,9 @@ void setUpGame()
     writeAll(0);
 
     GPIO_WritePin(32, 0);
+#endif
 }
-
+#ifdef VGA
 inline void writeAll(uint16_t color)
 {
     uint32_t addr = 0;
@@ -276,3 +273,4 @@ inline void writeAll(uint16_t color)
 
     sram_write_multi_end();
 }
+#endif

@@ -11,55 +11,70 @@
 #include "../game.h"
 #include "../libs/sprite.h"
 
+#define DEADZONE 40
 
 
 extern player_t player;
 extern SemaphoreHandle_t player_ready;
 extern SemaphoreHandle_t bullet_ready;
+extern SemaphoreHandle_t lcd_ready;
+extern volatile bool gameOver;
+extern void setUpGame();
 
-extern bool gameOver;
-
-#define DEADZONE 40
+nunchuck_t getNunchuckData();
 
 void updateTask(void * pvParameters)
 {
     int cPressed = false;
     sprite_draw(&player.sprite);
-
-    nunchuck_refresh();
-    vTaskDelay(5 / portTICK_PERIOD_MS);
-    nunchuck_send_read();
-    vTaskDelay(5 / portTICK_PERIOD_MS);
-    nunchuck_t data = nunchuck_read();
-    int16_t RESTING_X = data.joy_x;
+    int16_t RESTING_X = getNunchuckData().joy_x;
 
     while (1)
     {
-        while(gameOver);
-        //scia_msg("\rupdate\n");
-        nunchuck_refresh();
-        vTaskDelay(5 / portTICK_PERIOD_MS);
-        nunchuck_send_read();
-        vTaskDelay(5 / portTICK_PERIOD_MS);
-        data = nunchuck_read();
-        //nunchuck_print(&data);
-        int16_t delta = data.joy_x - RESTING_X;
-        if (delta > DEADZONE)
-        {
-            xSemaphoreTake(player_ready, portMAX_DELAY);
-            player.sprite.x += 3;
-            xSemaphoreGive(player_ready);
-            sprite_draw(&player.sprite);
-        }
-        else if (delta < -DEADZONE)
-        {
-            xSemaphoreTake(player_ready, portMAX_DELAY);
-            player.sprite.x -= 3;
-            xSemaphoreGive(player_ready);
-            sprite_draw(&player.sprite);
+        nunchuck_t nunchuck = getNunchuckData();
+
+        if (gameOver) {
+
+            if (!nunchuck.button_z) {
+                setUpGame();
+
+                xSemaphoreTake(lcd_ready, portMAX_DELAY);
+                LCD_Init(false);
+                xSemaphoreGive(lcd_ready);
+                sprite_draw(&player.sprite);
+
+                gameOver = false;
+            }
+
+            continue;
         }
 
-        if (!data.button_c) {
+        int16_t delta = nunchuck.joy_x - RESTING_X;
+        int16_t change = 0;
+
+
+
+        if (delta > 0) {
+            change = 3;
+        }
+        else if (delta < 0) {
+            change = -3;
+        }
+
+        if (change != 0) {
+            xSemaphoreTake(player_ready, portMAX_DELAY);
+            player.sprite.x += change;
+            xSemaphoreGive(player_ready);
+            //check if passed screen
+            if (player.sprite.x < MIN_SCREEN_X || (player.sprite.x + player.sprite.width) > MAX_SCREEN_X) {
+                player.sprite.x -= change;
+            }
+            else {
+                sprite_draw(&player.sprite);
+            }
+        }
+
+        if (!nunchuck.button_c) {
             if (!cPressed) {
                 xSemaphoreGive(bullet_ready);
             }
@@ -70,92 +85,14 @@ void updateTask(void * pvParameters)
             cPressed = false;
         }
 
-
-
-//        if (waiting)
-//        {
-//            if (xSemaphoreTake( wii_ready, 1000 ) == pdTRUE)
-//            {
-//                uint8_t data[6];
-//                int i;
-//                for(i=0; i < 6; i++)
-//                    data[i] = (I2caRegs.I2CDRR.all ^ 0x17) + 0x17;
-//
-//
-//                scia_msg((data[0] & 0x01) + 40);
-//
-//                waiting = false;
-//            }
-//        }
-//        else
-//        {
-//            while (I2CA_WriteData(&I2cReq) != I2C_SUCCESS);
-//            vTaskDelay(500 / portTICK_PERIOD_MS);
-//            while (I2CA_ReadData(&I2cMsgIn1) != I2C_SUCCESS);
-//            waiting = true;
-//        }
-
     }
 }
 
-
-//
-// i2c_int1a_isr - I2CA ISR
-//
-__interrupt void i2c_int1a_isr(void)
-{
-    Uint16 IntSource, i;
-
-    //
-    // Read __interrupt source
-    //
-    IntSource = I2caRegs.I2CISRC.all;
-
-    //
-    // Interrupt source = stop condition detected
-    //
-    if(IntSource == I2C_SCD_ISRC)
-    {
-//        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-//        xSemaphoreGiveFromISR( wii_ready, &xHigherPriorityTaskWoken );
-//        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-
-        uint8_t data[6];
-        int i;
-        for(i=0; i < 6; i++)
-            data[i] = (I2caRegs.I2CDRR.all ^ 0x17) + 0x17;
-    }
-
-    //
-    // Interrupt source = Register Access Ready
-    // This __interrupt is used to determine when the EEPROM address setup
-    // portion of the read data communication is complete. Since no stop bit is
-    // commanded, this flag tells us when the message has been sent instead of
-    // the SCD flag. If a NACK is received, clear the NACK bit and command a
-    // stop. Otherwise, move on to the read data portion of the communication.
-    //
-    else if(IntSource == I2C_ARDY_ISRC)
-    {
-        if(I2caRegs.I2CSTR.bit.NACK == 1)
-        {
-            I2caRegs.I2CMDR.bit.STP = 1;
-            I2caRegs.I2CSTR.all = I2C_CLR_NACK_BIT;
-        }
-//        else if(CurrentMsgPtr->MsgStatus == I2C_MSGSTAT_SEND_NOSTOP_BUSY)
-//        {
-//            CurrentMsgPtr->MsgStatus = I2C_MSGSTAT_RESTART;
-//        }
-    }
-    else
-    {
-        //
-        // Generate some error due to invalid __interrupt source
-        //
-        __asm("   ESTOP0");
-    }
-
-    //
-    // Enable future I2C (PIE Group 8) __interrupts
-    //
-    PieCtrlRegs.PIEACK.all = PIEACK_GROUP8;
+nunchuck_t getNunchuckData() {
+    nunchuck_refresh();
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    nunchuck_send_read();
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+    return nunchuck_read();
 }
+

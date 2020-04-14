@@ -4,11 +4,14 @@
  *  Created on: Mar 21, 2020
  *      Author: Raymond Bernardo
  */
+
+
 #include "../bsp/bsp.h"
+#ifdef SPEAKER
 #include "../libs/printNum.h"
 #include "../bsp/device_driver/fatfs/src/tff.h"
-//#include "dac.h"
-//#include "driverlib.h"
+#include "dac.h"
+#include "driverlib.h"
 #include "../game.h"
 #include <F28x_Project.h>
 
@@ -22,12 +25,12 @@ typedef struct wav
 
 extern SemaphoreHandle_t music_ready;
 extern SemaphoreHandle_t sd_ready;
+extern volatile bool gameOver;
 bool playerShootSound = false;
 
 void wav_open(wav_t* wav, char* src);
 void wav_start(wav_t* wav);
 void wav_read(wav_t* wav, uint16_t * data, int len, unsigned short* usBytesRead);
-void clearBuffer(uint16_t * data, int len);
 
 
 uint16_t ping[BUFFER_SIZE];
@@ -38,9 +41,9 @@ bool ready = false;
 int counter = 0;
 void sampleTimer()
 {
-    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
+    //PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
 
-//    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
 
     if (counter >= BUFFER_SIZE - 1)
     {
@@ -58,8 +61,8 @@ void sampleTimer()
         xSemaphoreGiveFromISR(music_ready, &xHigherPriorityTaskWoken);
     }
 
-    DacaRegs.DACVALS.all = out[counter];
-//    DAC_setShadowValue(DACA_BASE,  out[counter]);
+//    DacaRegs.DACVALS.all = out[counter];
+    DAC_setShadowValue(DACA_BASE,  out[counter]);
     counter++;
 }
 
@@ -90,14 +93,14 @@ void speakerTask()
                    configCPU_CLOCK_HZ / 1000000,  // CPU clock in MHz
                    1000000 / 16000); // Timer period in uS
 
-    CpuTimer0Regs.TCR.bit.TIE = 1;
-//    CPUTimer_enableInterrupt(CPUTIMER0_BASE);
+//    CpuTimer0Regs.TCR.bit.TIE = 1;
+    CPUTimer_enableInterrupt(CPUTIMER0_BASE);
 
-    PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
-//    Interrupt_enable(INT_TIMER0);
+//    PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
+    Interrupt_enable(INT_TIMER0);
 
-    CpuTimer0Regs.TCR.bit.TSS = 0;
-//    CPUTimer_startTimer(CPUTIMER0_BASE);
+//    CpuTimer0Regs.TCR.bit.TSS = 0;
+    CPUTimer_startTimer(CPUTIMER0_BASE);
     EINT;
     ERTM;
 
@@ -105,12 +108,15 @@ void speakerTask()
 
     while (1)
     {
+        clearBuffer(in, BUFFER_SIZE);
 
-        //wav_read(&title, in, BUFFER_SIZE - 1, &usBytesRead);
-        //if (usBytesRead == 0)
-        //{
-          //  wav_start(&title);
-        //}
+        if (gameOver) {
+            wav_read(&title, in, BUFFER_SIZE - 1, &usBytesRead);
+            if (usBytesRead == 0)
+            {
+                wav_start(&title);
+            }
+        }
 
         if (playerShootSound) {
             wav_read(&shoot, in, BUFFER_SIZE - 1, &usBytesRead);
@@ -118,8 +124,6 @@ void speakerTask()
             {
                 wav_start(&shoot);
                 playerShootSound = false;
-                clearBuffer(out, BUFFER_SIZE);
-                clearBuffer(in, BUFFER_SIZE);
             }
         }
 
@@ -191,4 +195,4 @@ void wav_open(wav_t* wav, char* src) {
     wav->startAddress = addr;
 }
 
-
+#endif
