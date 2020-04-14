@@ -17,11 +17,9 @@ extern player_t player;
 extern volatile bool gameOver;
 
 #pragma DATA_SECTION(invaderAPixels,"ramgs4")
-#pragma DATA_SECTION(playerPixels,"ramgs4")
 #pragma DATA_SECTION(invaderBPixels,"ramgs5")
 
 char invaderAPixels[INVADER_SIZE];
-char playerPixels[PLAYER_SIZE];
 char invaderBPixels[INVADER_SIZE];
 
 void invaderTask() {
@@ -29,19 +27,14 @@ void invaderTask() {
     unsigned short usBytesRead;
     bmp_t invader_a;
     bmp_t invader_b;
-    bmp_t player_bmp;
+
 #ifdef BMP
     bmp_open(&invader_a, "invaderA.bmp");
     bmp_open(&invader_b, "invaderB.bmp");
-    bmp_open(&player_bmp, "shooter.bmp");
 #elif RAW
     bmp_open(&invader_a, "invaderA.txt");
     bmp_open(&invader_b, "invaderB.txt");
-    bmp_open(&player_bmp, "shooter.txt");
 #endif
-    bmp_read(&player_bmp, playerPixels, PLAYER_SIZE, &usBytesRead);
-    player.sprite.data = playerPixels;
-
 
     bmp_read(&invader_a, invaderAPixels, INVADER_SIZE, &usBytesRead);
     bmp_read(&invader_b, invaderBPixels, INVADER_SIZE, &usBytesRead);

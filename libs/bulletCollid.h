@@ -9,13 +9,13 @@
 #define LIBS_BULLETCOLLID_H_
 
 
-typedef struct entinity
+typedef struct entity
 {
     int x;
     int y;
     int width;
     int height;
-} entinity_t;
+} entity_t;
 
 struct coord
 {
@@ -23,7 +23,7 @@ struct coord
     int y;
 };
 
-bool bulletCollided(entinity_t entinity, entinity_t bullet);
+bool bulletCollided(entity_t entity, entity_t bullet);
 
 
 #endif /* LIBS_BULLETCOLLID_H_ */

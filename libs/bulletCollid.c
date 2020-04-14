@@ -12,16 +12,16 @@
 const int FIGHTER_WIDTH = 100;
 const int FIGHTER_HEIGHT = 85;
 
-bool bulletCollided(entinity_t entinity, entinity_t bullet)
+bool bulletCollided(entity_t entity, entity_t bullet)
 {
     struct coord topLeft = {
-         .x = entinity.x,
-         .y = entinity.y
+         .x = entity.x,
+         .y = entity.y
     };
 
     struct coord bottomRight = {
-         .x = entinity.x + entinity.width,
-         .y = entinity.y + entinity.height
+         .x = entity.x + entity.width,
+         .y = entity.y + entity.height
     };
 
     bullet.x += bullet.width;

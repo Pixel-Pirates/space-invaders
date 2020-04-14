@@ -20,7 +20,7 @@ extern player_t player;
 extern volatile bool gameOver;
 extern bool playerShootSound;
 
-void draw_entinity(entinity_t entinity, uint16_t color);
+void draw_entity(entity_t entity, uint16_t color);
 
 void bulletTask()
 {
@@ -30,7 +30,7 @@ void bulletTask()
     #ifdef SPEAKER
         playerShootSound = true;
     #endif
-        entinity_t bullet;
+        entity_t bullet;
         bullet.width = BULLET_WIDTH;
         bullet.height = BULLET_HEIGHT;
         bullet.x = player.sprite.x + player.sprite.width/2;
@@ -38,14 +38,14 @@ void bulletTask()
 
         while(1)
         {
-            draw_entinity(bullet, 0x0000);
+            draw_entity(bullet, 0x0000);
             if (bullet.y <= 0 || gameOver)
             {
                 break;
             }
 
             int foundDead = false;
-            entinity_t invader_e;
+            entity_t invader_e;
             for (int i = 0; i < INVADER_COLUMNS*INVADER_ROWS; i++)
             {
                 invader_t invader = invaders[i];
@@ -61,7 +61,7 @@ void bulletTask()
                 if (bulletCollided(invader_e, bullet)) {
                     invaders[i].alive = false;
                     foundDead = true;
-                    draw_entinity(invader_e, 0x0000);
+                    draw_entity(invader_e, 0x0000);
                     break;
                 }
             }
@@ -71,13 +71,13 @@ void bulletTask()
             }
 
             bullet.y -= 1;
-            draw_entinity(bullet, 0xFFE0);
+            draw_entity(bullet, 0xFFE0);
             vTaskDelay(5 / portTICK_PERIOD_MS);
         }
     }
 }
 
-void draw_entinity(entinity_t entinity, uint16_t color) {
+void draw_entity(entity_t entity, uint16_t color) {
     xSemaphoreTake(lcd_ready, portMAX_DELAY);
     #ifdef VGA
     uint32_t addr = 0;
@@ -86,18 +86,18 @@ void draw_entinity(entinity_t entinity, uint16_t color) {
     {
         GPIO_WritePin(32, bufNum);
         sram_write_multi_start();
-        for(uint32_t y = 0; y < entinity.height; y++)
+        for(uint32_t y = 0; y < entity.height; y++)
         {
-            for(uint32_t x = 0; x < entinity.width; x++)
+            for(uint32_t x = 0; x < entity.width; x++)
             {
-                addr = ((entinity.x + x) << 9) | (entinity.y + y);
+                addr = ((entity.x + x + VGA_OFFSET_X) << 9) | (entity.y + y + VGA_OFFSET_Y);
                 sram_write_multi(addr, color);
             }
         }
         sram_write_multi_end();
     }
     #elif LCD
-    LCD_DrawRectangle(entinity.x, entinity.x + entinity.width, entinity.y, entinity.y + entinity.width, color);
+    LCD_DrawRectangle(entity.x, entity.x + entity.width, entity.y, entity.y + entity.width, color);
     #endif
     xSemaphoreGive(lcd_ready);
 }

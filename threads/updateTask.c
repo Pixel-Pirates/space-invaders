@@ -10,9 +10,12 @@
 #include "../bsp/device_driver/fatfs/src/tff.h"
 #include "../game.h"
 #include "../libs/sprite.h"
+#include "../libs/bmp.h"
 
 #define DEADZONE 40
 
+#pragma DATA_SECTION(playerPixels,"ramgs4")
+char playerPixels[PLAYER_SIZE];
 
 extern player_t player;
 extern SemaphoreHandle_t player_ready;
@@ -26,8 +29,20 @@ nunchuck_t getNunchuckData();
 void updateTask(void * pvParameters)
 {
     int cPressed = false;
-    sprite_draw(&player.sprite);
+    bmp_t player_bmp;
+    unsigned short usBytesRead;
     int16_t RESTING_X = getNunchuckData().joy_x;
+
+#ifdef BMP
+    bmp_open(&player_bmp, "shooter.bmp");
+#elif RAW
+    bmp_open(&player_bmp, "shooter.txt");
+#endif
+
+    bmp_read(&player_bmp, playerPixels, PLAYER_SIZE, &usBytesRead);
+    player.sprite.data = playerPixels;
+    sprite_draw(&player.sprite);
+
 
     while (1)
     {
@@ -52,12 +67,10 @@ void updateTask(void * pvParameters)
         int16_t delta = nunchuck.joy_x - RESTING_X;
         int16_t change = 0;
 
-
-
-        if (delta > 0) {
+        if (delta > DEADZONE) {
             change = 3;
         }
-        else if (delta < 0) {
+        else if (delta < -DEADZONE) {
             change = -3;
         }
 

@@ -2,11 +2,11 @@
 #ifndef GAME_H_
 #define GAME_H_
 
-//#define VGA 0
-#define LCD 1
+#define VGA 1
+//#define LCD 1
 
-//#define RAW 0
-#define BMP 1
+#define RAW 1
+//#define BMP 1
 
 //#define SPEAKER 1
 
@@ -23,6 +23,9 @@
 #define PLAYER_HEIGHT 31
 #define PLAYER_WIDTH 30
 #define PLAYER_SIZE PLAYER_WIDTH*PLAYER_HEIGHT*2
+
+#define VGA_OFFSET_X 160
+#define VGA_OFFSET_Y 180
 
 typedef struct sprite
 {

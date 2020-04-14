@@ -160,7 +160,6 @@ void sram_write(uint32_t addr, uint16_t data)
 void sram_write_multi_start()
 {
     OE_deselect;
-    WE_select;
     set_data_out();
 }
 
@@ -172,7 +171,9 @@ void sram_write_multi_end()
 void sram_write_multi(uint32_t addr, uint16_t data)
 {
     set_address(addr);
+    WE_select;
     set_data(data);
+    WE_deselect;
     //F28x_usDelay(1);
 }
 

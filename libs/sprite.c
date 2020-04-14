@@ -27,12 +27,10 @@ void sprite_draw(sprite_t* sprite)
         GPIO_WritePin(32, bufNum);
         sram_write_multi_start();
         for(uint32_t y = 0; y < sprite->height; y++)
-//        for(uint32_t y = 0; y < sprite->width; y++)
         {
-//            for(uint32_t x = 0; x < sprite->height; x++)
             for(uint32_t x = 0; x < sprite->width; x++)
             {
-                addr = ((sprite->x + x) << 9) | (sprite->y + y);
+                addr = ((sprite->x + x + VGA_OFFSET_X) << 9) | (sprite->y + y + VGA_OFFSET_Y);
                 uint32_t index = 2*(x*sprite->height + y);
                 sram_write_multi(addr, sprite->data[index+1]<<8 | sprite->data[index]);
             }

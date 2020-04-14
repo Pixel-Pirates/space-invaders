@@ -12,7 +12,7 @@
 #include "bsp/bsp.h"
 #include "bsp/device_driver/fatfs/src/tff.h"
 #include "game.h"
-
+#include "libs/sprite.h"
 #include "threads/thread.h"
 
 
@@ -68,6 +68,9 @@ extern volatile bool gameOver = true;
 
 void setUpGame();
 inline void writeAll(uint16_t color);
+inline void clearScreen();
+inline void drawBackGround();
+inline void loadPlayer();
 
 void __error__(char *pcFilename, unsigned long ulLine)
 {
@@ -246,15 +249,11 @@ void setUpGame()
 #ifdef VGA
     GPIO_SetupPinOptions(32, GPIO_OUTPUT, 0);
 
-    GPIO_WritePin(32, 0);
-    writeAll(0);
-
-    GPIO_WritePin(32, 1);
-    writeAll(0);
-
-    GPIO_WritePin(32, 0);
+    drawBackGround();
+    loadPlayer();
 #endif
 }
+
 #ifdef VGA
 inline void writeAll(uint16_t color)
 {
@@ -272,5 +271,59 @@ inline void writeAll(uint16_t color)
     }
 
     sram_write_multi_end();
+}
+
+inline void clearScreen()
+{
+    GPIO_WritePin(32, 0);
+    writeAll(0);
+
+    GPIO_WritePin(32, 1);
+    writeAll(0);
+
+    GPIO_WritePin(32, 0);
+}
+
+inline void loadPlayer()
+{
+    GPIO_WritePin(32, 0);
+    sprite_draw(&player.sprite);
+
+    GPIO_WritePin(32, 1);
+    sprite_draw(&player.sprite);
+
+    GPIO_WritePin(32, 0);
+}
+
+inline void drawBackGround()
+{
+    FIL g_shooter;
+    unsigned short usBytesRead;
+
+    f_open(&g_shooter, "back.txt", FA_READ);
+
+    uint32_t addr = 0;
+    uint16_t buf[2] = {0, 0};
+
+    sram_write_multi_start();
+
+    for(unsigned sramNum = 0; sramNum < 2; sramNum++)
+    {
+        GPIO_WritePin(32, sramNum);
+        for(uint32_t x = 0; x < 640; x++)
+        {
+            for(uint32_t y = 0; y < 480; y++)
+            {
+                addr = (x << 9) | y;
+                f_read(&g_shooter, buf, 2, &usBytesRead);
+                sram_write_multi(addr, buf[1] << 8 | buf[0]);
+            }
+        }
+        f_lseek(&g_shooter, 0);
+    }
+
+    sram_write_multi_end();
+    f_close(&g_shooter);
+    GPIO_WritePin(32, 0);
 }
 #endif
