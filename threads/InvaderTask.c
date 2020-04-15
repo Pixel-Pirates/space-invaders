@@ -19,6 +19,8 @@ extern volatile bool gameOver;
 #pragma DATA_SECTION(invaderAPixels,"ramgs4")
 #pragma DATA_SECTION(invaderBPixels,"ramgs5")
 
+#define INVADER_BASE_SPEED 50
+
 char invaderAPixels[INVADER_SIZE];
 char invaderBPixels[INVADER_SIZE];
 
@@ -111,6 +113,6 @@ void invaderTask() {
             #endif
         }
 
-        vTaskDelay(50 / portTICK_PERIOD_MS);
+        vTaskDelay(INVADER_BASE_SPEED / portTICK_PERIOD_MS);
     }
 }

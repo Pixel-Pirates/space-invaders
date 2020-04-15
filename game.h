@@ -8,13 +8,15 @@
 #define RAW 1
 //#define BMP 1
 
-//#define SPEAKER 1
+#define SPEAKER 1
 
 #define INVADER_ROWS 3
 #define INVADER_COLUMNS 7
 
 //#define INVADER_ROWS 1
 //#define INVADER_COLUMNS 1
+
+#define CONTROLSUITE 1
 
 #define INVADER_HEIGHT 30
 #define INVADER_WIDTH 22
