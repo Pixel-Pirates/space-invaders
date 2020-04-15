@@ -9,7 +9,7 @@
 #include "../libs/printNum.h"
 #include "../libs/sprite.h"
 #include "../libs/bmp.h"
-
+#include "../libs/VGA.h"
 
 extern SemaphoreHandle_t player_ready;
 extern invader_t invaders[27];
@@ -106,6 +106,9 @@ void invaderTask() {
 
         if (invadersDead == INVADER_ROWS*INVADER_COLUMNS) {
             gameOver = true;
+            #ifdef VGA
+                win();
+            #endif
         }
 
         vTaskDelay(50 / portTICK_PERIOD_MS);

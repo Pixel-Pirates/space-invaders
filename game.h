@@ -25,7 +25,7 @@
 #define PLAYER_SIZE PLAYER_WIDTH*PLAYER_HEIGHT*2
 
 #define VGA_OFFSET_X 160
-#define VGA_OFFSET_Y 180
+#define VGA_OFFSET_Y 179
 
 typedef struct sprite
 {

@@ -10,6 +10,7 @@
 #include "../bsp/device_driver/fatfs/src/tff.h"
 #include "../game.h"
 #include "../libs/bulletCollid.h"
+#include "../libs/VGA.h"
 
 extern invader_t invaders[27];
 extern player_t player;
@@ -74,7 +75,9 @@ void bombTask(){
         if (bulletCollided(player_e, bomb)) {
             gameOver = true;
             activeBomb = false;
-
+            #ifdef VGA
+                loss();
+            #endif
         }
 
         if (bomb.y + bomb.height  >= MAX_SCREEN_Y - 1) {
