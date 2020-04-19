@@ -46,6 +46,8 @@ typedef struct invader
 {
     sprite_t sprite;
     bool alive;
+    bool justDied;
+    int deadFrames;
 } invader_t;
 
 typedef struct player
