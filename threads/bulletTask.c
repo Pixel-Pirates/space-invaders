@@ -18,7 +18,8 @@ extern SemaphoreHandle_t lcd_ready;
 extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
-extern bool playerShootSound;
+extern volatile bool playerShootSound;
+extern volatile bool invaderDiedSound;
 
 void draw_entity(entity_t entity, uint16_t color);
 
@@ -62,6 +63,7 @@ void bulletTask()
                     invaders[i].alive = false;
                     foundDead = true;
                     draw_entity(invader_e, 0x0000);
+                    invaderDiedSound = true; //play invader death sound
                     break;
                 }
             }

@@ -26,7 +26,8 @@ typedef struct wav
 extern SemaphoreHandle_t music_ready;
 extern SemaphoreHandle_t sd_ready;
 extern volatile bool gameOver;
-bool playerShootSound = false;
+volatile bool playerShootSound = false;
+volatile bool invaderDiedSound = false;
 
 void wav_open(wav_t* wav, char* src);
 void wav_start(wav_t* wav);
@@ -35,6 +36,7 @@ void wav_read(wav_t* wav, uint16_t * data, int len, unsigned short* usBytesRead)
 
 uint16_t ping[BUFFER_SIZE];
 uint16_t pong[BUFFER_SIZE];
+uint16_t buff[BUFFER_SIZE];
 uint16_t* out;
 uint16_t* in;
 bool ready = false;
@@ -66,12 +68,22 @@ void sampleTimer()
     counter++;
 }
 
+void transferData(uint16_t* newData, uint16_t* buff) {
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        buff[i] += newData[i];
+    }
+}
+
 void speakerTask()
 {
     wav_t title;
     wav_t shoot;
+    wav_t invaderShot;
+    wav_t playerShot;
     wav_open(&title, "title.wav");
     wav_open(&shoot, "shoot.wav");
+    wav_open(&invaderShot, "inkill.wav");
+    wav_open(&playerShot, "plkill.wav");
 
 
     out = ping;
@@ -119,11 +131,22 @@ void speakerTask()
         }
 
         if (playerShootSound) {
-            wav_read(&shoot, in, BUFFER_SIZE - 1, &usBytesRead);
+            wav_read(&shoot, buff, BUFFER_SIZE - 1, &usBytesRead);
+            transferData(buff, in);
             if (usBytesRead == 0)
             {
                 wav_start(&shoot);
                 playerShootSound = false;
+            }
+        }
+
+        if (invaderDiedSound) {
+            wav_read(&invaderShot, buff, BUFFER_SIZE - 1, &usBytesRead);
+            transferData(buff, in);
+            if (usBytesRead == 0)
+            {
+                wav_start(&invaderShot);
+                invaderDiedSound = false;
             }
         }
 
