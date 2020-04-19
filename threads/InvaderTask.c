@@ -16,30 +16,30 @@ extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
 
-#pragma DATA_SECTION(invaderAPixels,"ramgs4")
-#pragma DATA_SECTION(invaderBPixels,"ramgs5")
+#pragma DATA_SECTION(invaderM1Pixels,"ramgs4")
+#pragma DATA_SECTION(invaderM2Pixels,"ramgs5")
 
 #define INVADER_BASE_SPEED 50
 
-char invaderAPixels[INVADER_SIZE];
-char invaderBPixels[INVADER_SIZE];
+char invaderM1Pixels[INVADER_SIZE];
+char invaderM2Pixels[INVADER_SIZE];
 
 void invaderTask() {
 
     unsigned short usBytesRead;
-    bmp_t invader_a;
-    bmp_t invader_b;
+    bmp_t invader_med1;
+    bmp_t invader_med2;
 
 #ifdef BMP
-    bmp_open(&invader_a, "invaderA.bmp");
-    bmp_open(&invader_b, "invaderB.bmp");
+    bmp_open(&invader_med1, "invaderA.bmp");
+    bmp_open(&invader_med2, "invaderB.bmp");
 #elif RAW
-    bmp_open(&invader_a, "invaderA.txt");
-    bmp_open(&invader_b, "invaderB.txt");
+    bmp_open(&invader_med1, "invaderA.txt");
+    bmp_open(&invader_med2, "invaderB.txt");
 #endif
 
-    bmp_read(&invader_a, invaderAPixels, INVADER_SIZE, &usBytesRead);
-    bmp_read(&invader_b, invaderBPixels, INVADER_SIZE, &usBytesRead);
+    bmp_read(&invader_med1, invaderM1Pixels, INVADER_SIZE, &usBytesRead);
+    bmp_read(&invader_med2, invaderM2Pixels, INVADER_SIZE, &usBytesRead);
     int movingRight = true;
     int hitEnd = false;
     bool aActive = true;
@@ -56,17 +56,13 @@ void invaderTask() {
                 continue;
             }
 
-
-
             if (aActive) {
-                invader->sprite.data = invaderAPixels;
+                invader->sprite.data = invaderM1Pixels;
             }
             else {
-                invader->sprite.data = invaderBPixels;
+                invader->sprite.data = invaderM2Pixels;
             }
             sprite_draw(&invader->sprite);
-
-
 
             if (movingRight) {
                 invader->sprite.x += 1;
@@ -100,7 +96,7 @@ void invaderTask() {
             }
         }
 
-        //check to see if immage should be updated
+        //check to see if image should be updated
         if (count++ > 10){
             aActive = !aActive;
             count = 0;

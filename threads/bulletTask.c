@@ -9,9 +9,16 @@
 #include "../bsp/device_driver/fatfs/src/tff.h"
 #include "../game.h"
 #include "../libs/bulletCollid.h"
+#include "../libs/VGA.h"
 
 #define BULLET_WIDTH 3
 #define BULLET_HEIGHT 8
+
+typedef enum{
+    SMALL = 30,
+    MEDIUM = 20,
+    LARGE = 10
+}invaderPoints;
 
 extern SemaphoreHandle_t bullet_ready;
 extern SemaphoreHandle_t lcd_ready;
@@ -20,6 +27,7 @@ extern player_t player;
 extern volatile bool gameOver;
 extern volatile bool playerShootSound;
 extern volatile bool invaderDiedSound;
+extern uint16_t score;
 
 void draw_entity(entity_t entity, uint16_t color);
 
@@ -64,11 +72,24 @@ void bulletTask()
                     foundDead = true;
                     draw_entity(invader_e, 0x0000);
                     invaderDiedSound = true; //play invader death sound
+
+                    /* Update Score TODO: Modify logic for alien scores*/
+                    /* 0 is top row */
+                    switch(i/INVADER_COLUMNS)
+                    {
+                    case 0: score+=SMALL;   break;
+                    case 1: score+=MEDIUM;  break;
+                    case 2: score+=MEDIUM;  break;
+                    case 3: score+=LARGE;   break;
+                    case 4: score+=LARGE;   break;
+                    default: score=0xFF;    break;
+                    }
                     break;
                 }
             }
 
             if (foundDead) {
+                printScore();
                 break;
             }
 
@@ -92,7 +113,7 @@ void draw_entity(entity_t entity, uint16_t color) {
         {
             for(uint32_t x = 0; x < entity.width; x++)
             {
-                addr = ((entity.x + x + VGA_OFFSET_X) << 9) | (entity.y + y + VGA_OFFSET_Y);
+                addr = ((entity.x + x + VGA_OFFSET_X) << 9) | (entity.y + y + VGA_SPRITE_OFFSET_Y);
                 sram_write_multi(addr, color);
             }
         }

@@ -24,5 +24,6 @@ void drawImage(char* fileName, uint32_t width, uint32_t height, uint32_t x_offse
 void win();
 void loss();
 void VGA_Text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color);
+void printScore();
 
 #endif /* LIBS_VGA_H_ */

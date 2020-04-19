@@ -11,9 +11,7 @@
 #include "libs/sprite.h"
 #include "threads/thread.h"
 #include "bsp/device_driver/AsciiLib.h"
-
-extern SemaphoreHandle_t sd_ready;
-extern player_t player;
+#include <stdio.h>
 
 #ifndef MAX_SCREEN_X
 #define MAX_SCREEN_X 320
@@ -22,6 +20,10 @@ extern player_t player;
 #ifndef MAX_SCREEN_Y
 #define MAX_SCREEN_Y 240
 #endif
+
+extern SemaphoreHandle_t sd_ready, lcd_ready;
+extern player_t player;
+extern uint16_t score;
 
 inline void writeAll(uint16_t color)
 {
@@ -144,6 +146,8 @@ void VGA_Text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color
 {
     unsigned char TempChar;
 
+    xSemaphoreTake(lcd_ready, portMAX_DELAY);
+
 	for(unsigned sramNum = 0; sramNum < 2; sramNum++)
 	{
 	    unsigned char * msg = str;
@@ -173,5 +177,14 @@ void VGA_Text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color
         while ( *msg != 0 );
 	    sram_write_multi_end();
 	}
+
+	xSemaphoreGive(lcd_ready);
 	GPIO_WritePin(32, 0);
+}
+
+void printScore()
+{
+    char scoreStr[4];
+    sprintf(scoreStr, "%04i", score);
+    VGA_Text(HEADER_SCORE_NUM, HEADER_Y, (unsigned char*) scoreStr, VGA_GREEN);
 }

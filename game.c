@@ -41,6 +41,8 @@ invader_t invaders[INVADER_COLUMNS*INVADER_ROWS];
 player_t player;
 bool firstRun = true;
 
+uint16_t score = 0;
+
 #define STACK_SIZE  1024U
 
 #pragma DATA_SECTION(updateBombStack,"ramgs2")
@@ -251,16 +253,19 @@ void setUpGame()
     player.sprite.undraw = true;
 
     player.sprite.x = 50;
-    player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH;
+    player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH - SPRITE_OFFSET_Y;
 
-    setUpHeader();
+    score = 0;
 
 #ifdef VGA
     if(firstRun)
         firstRun = false;
     else
         clearScreen();
+    setUpHeader();
     loadPlayer();
+#elif LCD
+    setUpHeader();
 #endif
 }
 
@@ -268,12 +273,12 @@ inline void setUpHeader()
 {
 #ifdef VGA
     VGA_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", VGA_WHITE);
-    VGA_Text(HEADER_SCORE_NUM, HEADER_Y, "0", VGA_GREEN);
+    VGA_Text(HEADER_SCORE_NUM, HEADER_Y, "0       ", VGA_GREEN);
     VGA_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", VGA_WHITE);
     VGA_Text(HEADER_LIVES_NUM, HEADER_Y, "3", VGA_GREEN);
 #elif LCD
     LCD_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", LCD_WHITE);
-    LCD_Text(HEADER_SCORE_NUM, HEADER_Y, "0", LCD_GREEN);
+    LCD_Text(HEADER_SCORE_NUM, HEADER_Y, "0       ", LCD_GREEN);
     LCD_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", LCD_WHITE);
     LCD_Text(HEADER_LIVES_NUM, HEADER_Y, "3", LCD_GREEN);
 #endif
