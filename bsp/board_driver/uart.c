@@ -14,21 +14,14 @@ void scia_xmit(int a);
 void uart_init(void)
 {
 //
-// For this example, only init the pins for the SCI-A port.
-//  GPIO_SetupPinMux() - Sets the GPxMUX1/2 and GPyMUX1/2 register bits
-//  GPIO_SetupPinOptions() - Sets the direction and configuration of the GPIOS
-// These functions are found in the F2837xD_Gpio.c file.
-//
-   GPIO_SetupPinMux(43, GPIO_MUX_CPU1, 15);
-   GPIO_SetupPinOptions(43, GPIO_INPUT, GPIO_PUSHPULL); //GPIO43 RX
-   GPIO_SetupPinMux(42, GPIO_MUX_CPU1, 15);
-   GPIO_SetupPinOptions(42, GPIO_OUTPUT, GPIO_ASYNC); //GPIO42 TX
-//
 // Step 4. User specific code:
 //
 
    scia_fifo_init();       // Initialize the SCI FIFO
    scia_echoback_init();   // Initialize SCI for echoback
+
+   scib_fifo_init();
+   scib_echoback_init();
 }
 
 //
@@ -37,6 +30,17 @@ void uart_init(void)
 //
 void scia_echoback_init()
 {
+    //
+    // For this example, only init the pins for the SCI-A port.
+    //  GPIO_SetupPinMux() - Sets the GPxMUX1/2 and GPyMUX1/2 register bits
+    //  GPIO_SetupPinOptions() - Sets the direction and configuration of the GPIOS
+    // These functions are found in the F2837xD_Gpio.c file.
+    //
+    GPIO_SetupPinMux(43, GPIO_MUX_CPU1, 15);
+    GPIO_SetupPinOptions(43, GPIO_INPUT, GPIO_PUSHPULL); //GPIO43 RX
+    GPIO_SetupPinMux(42, GPIO_MUX_CPU1, 15);
+    GPIO_SetupPinOptions(42, GPIO_OUTPUT, GPIO_ASYNC); //GPIO42 TX
+
     //
     // Note: Clocks were turned on to the SCIA peripheral
     // in the InitSysCtrl() function
@@ -60,6 +64,46 @@ void scia_echoback_init()
     SciaRegs.SCILBAUD.all = 0x008B;
 
     SciaRegs.SCICTL1.all = 0x0023;  // Relinquish SCI from Reset
+}
+
+//
+//  scib_echoback_init
+//
+//
+void scib_echoback_init()
+{
+    //
+    // For this example, only init the pins for the SCI-A port.
+    //  GPIO_SetupPinMux() - Sets the GPxMUX1/2 and GPyMUX1/2 register bits
+    //  GPIO_SetupPinOptions() - Sets the direction and configuration of the GPIOS
+    // These functions are found in the F2837xD_Gpio.c file.
+    //
+    GPIO_SetupPinMux(19, GPIO_MUX_CPU1, 2);
+    GPIO_SetupPinOptions(19, GPIO_INPUT, GPIO_PUSHPULL); //GPIO19 RX
+    GPIO_SetupPinMux(18, GPIO_MUX_CPU1, 2);
+    GPIO_SetupPinOptions(18, GPIO_OUTPUT, GPIO_ASYNC); //GPIO20 TX
+    //
+    // Note: Clocks were turned on to the SCIA peripheral
+    // in the InitSysCtrl() function
+    //
+
+    ScibRegs.SCICCR.all = 0x0007;   // 1 stop bit,  No loopback
+                                    // No parity,8 char bits,
+                                    // async mode, idle-line protocol
+    ScibRegs.SCICTL1.all = 0x0003;  // enable TX, RX, internal SCICLK,
+                                    // Disable RX ERR, SLEEP, TXWAKE
+    ScibRegs.SCICTL2.all = 0x0003;
+    ScibRegs.SCICTL2.bit.TXINTENA = 1;
+    ScibRegs.SCICTL2.bit.RXBKINTENA = 1;
+
+    //
+    // SCIA at 4800 baud
+    // @LSPCLK = 50 MHz (200 MHz SYSCLK) HBAUD = 0x05 and LBAUD = 0x15.
+    //
+    ScibRegs.SCIHBAUD.all = 0x0005;
+    ScibRegs.SCILBAUD.all = 0x0015;
+
+    ScibRegs.SCICTL1.all = 0x0023;  // Relinquish SCI from Reset
 }
 
 //
@@ -93,6 +137,16 @@ void scia_fifo_init()
     SciaRegs.SCIFFTX.all = 0xE040;
     SciaRegs.SCIFFRX.all = 0x2044;
     SciaRegs.SCIFFCT.all = 0x0;
+}
+
+//
+// scib_fifo_init - Initialize the SCI FIFO
+//
+void scib_fifo_init()
+{
+    ScibRegs.SCIFFTX.all = 0xE040;
+    ScibRegs.SCIFFRX.all = 0x2044;
+    ScibRegs.SCIFFCT.all = 0x0;
 }
 
 //
