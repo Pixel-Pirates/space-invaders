@@ -2,13 +2,7 @@
 #ifndef GAME_H_
 #define GAME_H_
 
-#define VGA 1
-//#define LCD 1
-
-#define RAW 1
-//#define BMP 1
-
-//#define SPEAKER 1
+#include "env.h"
 
 #define INVADER_ROWS 3
 #define INVADER_COLUMNS 7
