@@ -11,6 +11,7 @@
 #include "../libs/printNum.h"
 #include "../bsp/device_driver/fatfs/src/tff.h"
 #include "dac.h"
+#include "interrupt.h"
 #include "driverlib.h"
 #include "../game.h"
 #include <F28x_Project.h>
@@ -32,7 +33,7 @@ volatile bool invaderDiedSound = false;
 void wav_open(wav_t* wav, char* src);
 void wav_start(wav_t* wav);
 void wav_read(wav_t* wav, uint16_t * data, int len, unsigned short* usBytesRead);
-
+void clearBuffer(uint16_t * data, int len);
 
 uint16_t ping[BUFFER_SIZE];
 uint16_t pong[BUFFER_SIZE];
@@ -41,11 +42,15 @@ uint16_t* out;
 uint16_t* in;
 bool ready = false;
 int counter = 0;
+
 void sampleTimer()
 {
-    //PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
 
+#ifdef CONTROLSUITE
+    PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;
+#else
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP1);
+#endif
 
     if (counter >= BUFFER_SIZE - 1)
     {
@@ -63,8 +68,11 @@ void sampleTimer()
         xSemaphoreGiveFromISR(music_ready, &xHigherPriorityTaskWoken);
     }
 
-//    DacaRegs.DACVALS.all = out[counter];
+#ifdef CONTROLSUITE
+    DacaRegs.DACVALS.all = out[counter];
+#else
     DAC_setShadowValue(DACA_BASE,  out[counter]);
+#endif
     counter++;
 }
 
@@ -105,14 +113,18 @@ void speakerTask()
                    configCPU_CLOCK_HZ / 1000000,  // CPU clock in MHz
                    1000000 / 16000); // Timer period in uS
 
-//    CpuTimer0Regs.TCR.bit.TIE = 1;
+#ifdef CONTROLSUITE
+
+    CpuTimer0Regs.TCR.bit.TIE = 1;
+    PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
+    CpuTimer0Regs.TCR.bit.TSS = 0;
+    EnableInterrupts();
+#else
     CPUTimer_enableInterrupt(CPUTIMER0_BASE);
-
-//    PieCtrlRegs.PIEIER1.bit.INTx7 = 1;
     Interrupt_enable(INT_TIMER0);
-
-//    CpuTimer0Regs.TCR.bit.TSS = 0;
     CPUTimer_startTimer(CPUTIMER0_BASE);
+#endif
+
     EINT;
     ERTM;
 

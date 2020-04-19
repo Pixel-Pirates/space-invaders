@@ -11,6 +11,7 @@
 #include "libs/sprite.h"
 #include "threads/thread.h"
 
+extern SemaphoreHandle_t sd_ready;
 extern player_t player;
 
 inline void writeAll(uint16_t color)
@@ -72,6 +73,7 @@ void drawImage(char* fileName, uint32_t width, uint32_t height, uint32_t x_offse
     FIL fileObj;
     unsigned short usBytesRead;
 
+    xSemaphoreTake(sd_ready, portMAX_DELAY);
     result = f_open(&fileObj, fileName, FA_READ);
 
     uint32_t addr = 0;
@@ -95,6 +97,7 @@ void drawImage(char* fileName, uint32_t width, uint32_t height, uint32_t x_offse
     }
 
     result = f_close(&fileObj);
+    xSemaphoreGive(sd_ready);
     GPIO_WritePin(32, 0);
 }
 

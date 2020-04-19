@@ -12,7 +12,8 @@
 #include "../libs/sprite.h"
 #include "../libs/bmp.h"
 
-#define DEADZONE 40
+#define JOY_DEADZONE 30
+#define JOY_OFFSET 0
 
 #pragma DATA_SECTION(playerPixels,"ramgs4")
 char playerPixels[PLAYER_SIZE];
@@ -89,10 +90,10 @@ void updateTask(void * pvParameters)
         int16_t delta = nunchuck.joy_x - RESTING_X;
         int16_t change = 0;
 
-        if (delta > DEADZONE) {
+        if (delta > JOY_DEADZONE+JOY_OFFSET) {
             change = 3;
         }
-        else if (delta < -DEADZONE) {
+        else if (delta < -JOY_DEADZONE+JOY_OFFSET) {
             change = -3;
         }
 
