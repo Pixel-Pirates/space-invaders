@@ -5,6 +5,7 @@ common/*
 freertos_c28x-master/*
 Header/*
 targetConfigs/*
+driverlib/*
 
 #########
 ## OE App
@@ -228,6 +229,5 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
-.ccsproject
 .ccsproject
 env.h
