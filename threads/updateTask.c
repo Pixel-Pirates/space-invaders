@@ -26,6 +26,11 @@ extern void setUpGame();
 
 nunchuck_t getNunchuckData();
 
+uint16_t getData() {
+   while(ScibRegs.SCIFFRX.bit.RXFFST == 0) { } // wait for empty state
+   return ScibRegs.SCIRXBUF.all & 0xFF;
+}
+
 void updateTask(void * pvParameters)
 {
     int cPressed = false;
@@ -46,6 +51,23 @@ void updateTask(void * pvParameters)
 
     while (1)
     {
+        //start condition is 0x37
+//        while (getData() != 0x37);
+//        uint16_t cbutton = getData();
+//        if (cbutton == 0x44) { //check for escape
+//            continue;
+//        }
+//        uint16_t zbutton = getData();
+//        uint16_t xpos = getData();
+//        if (xpos == 0x44) {
+//            xpos = getData();
+//        }
+//
+//        nunchuck_t nunchuck;
+//        nunchuck.button_c = cbutton;
+//        nunchuck.button_z = zbutton;
+//        nunchuck.joy_x = xpos;
+
         nunchuck_t nunchuck = getNunchuckData();
 
         if (gameOver) {
