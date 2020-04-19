@@ -11,6 +11,7 @@
 #include "../game.h"
 #include "../libs/bulletCollid.h"
 #include "../libs/VGA.h"
+#include "../libs/sprite.h"
 
 extern invader_t invaders[27];
 extern player_t player;
@@ -73,11 +74,26 @@ void bombTask(){
         player_e.y = player.sprite.y;
 
         if (bulletCollided(player_e, bomb)) {
-            gameOver = true;
             activeBomb = false;
-            #ifdef VGA
-                loss();
-            #endif
+
+            player.lives--;
+            printLives();
+
+            if(player.lives == 0)
+            {
+                gameOver = true;
+
+                #ifdef VGA
+                    loss();
+                #endif
+            }
+            else
+            {
+                draw_entity(player_e, 0);           /* Undraw old location */
+                player.sprite.x = PLAYER_START_X;   /* Re-snap to start */
+                player.sprite._x = 0;               /* Used to FORCE a redraw */
+                sprite_draw(&player.sprite);        /* Redraw player, completing respawn */
+            }
         }
 
         if (bomb.y + bomb.height  >= MAX_SCREEN_Y - 1 - SPRITE_OFFSET_Y) {
@@ -88,8 +104,9 @@ void bombTask(){
     }
 }
 
-void drawBomb(entity_t entity)
+void playerUndraw()
 {
-    draw_entity(entity, 0xFFF);
+
 }
+
 

@@ -188,3 +188,10 @@ void printScore()
     sprintf(scoreStr, "%04i", score);
     VGA_Text(HEADER_SCORE_NUM, HEADER_Y, (unsigned char*) scoreStr, VGA_GREEN);
 }
+
+void printLives()
+{
+    char livesStr[1];
+    sprintf(livesStr, "%i", player.lives);
+    VGA_Text(HEADER_LIVES_NUM, HEADER_Y, (unsigned char*) livesStr, VGA_GREEN);
+}

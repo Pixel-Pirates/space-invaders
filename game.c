@@ -43,7 +43,7 @@ bool firstRun = true;
 
 uint16_t score = 0;
 
-#define STACK_SIZE  1024U
+#define STACK_SIZE  1280U
 
 #pragma DATA_SECTION(updateBombStack,"ramgs2")
 #pragma DATA_SECTION(updateBulletStack,"ramgs2")
@@ -252,7 +252,8 @@ void setUpGame()
     player.sprite.width = PLAYER_WIDTH;
     player.sprite.undraw = true;
 
-    player.sprite.x = 50;
+    player.sprite._x = 0;
+    player.sprite.x = PLAYER_START_X;
     player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH - SPRITE_OFFSET_Y;
 
     score = 0;
