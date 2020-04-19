@@ -12,8 +12,8 @@
 #include "../libs/sprite.h"
 #include "../libs/bmp.h"
 
-#define JOY_DEADZONE 40
-#define JOY_OFFSET -20
+#define JOY_DEADZONE 30
+#define JOY_OFFSET 0
 
 #pragma DATA_SECTION(playerPixels,"ramgs4")
 char playerPixels[PLAYER_SIZE];

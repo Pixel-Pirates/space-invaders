@@ -10,8 +10,9 @@
 #ifdef SPEAKER
 #include "../libs/printNum.h"
 #include "../bsp/device_driver/fatfs/src/tff.h"
-//#include "dac.h"
-//#include "driverlib.h"
+#include "dac.h"
+#include "interrupt.h"
+#include "driverlib.h"
 #include "../game.h"
 #include <F28x_Project.h>
 
@@ -31,7 +32,7 @@ bool playerShootSound = false;
 void wav_open(wav_t* wav, char* src);
 void wav_start(wav_t* wav);
 void wav_read(wav_t* wav, uint16_t * data, int len, unsigned short* usBytesRead);
-
+void clearBuffer(uint16_t * data, int len);
 
 uint16_t ping[BUFFER_SIZE];
 uint16_t pong[BUFFER_SIZE];
@@ -39,6 +40,7 @@ uint16_t* out;
 uint16_t* in;
 bool ready = false;
 int counter = 0;
+
 void sampleTimer()
 {
 

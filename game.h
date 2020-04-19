@@ -16,7 +16,7 @@
 //#define INVADER_ROWS 1
 //#define INVADER_COLUMNS 1
 
-#define CONTROLSUITE 1
+//#define CONTROLSUITE 1
 
 #define INVADER_HEIGHT 30
 #define INVADER_WIDTH 22
