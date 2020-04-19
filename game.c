@@ -71,6 +71,7 @@ static StackType_t  idleTaskStack[STACK_SIZE];
 extern volatile bool gameOver = true;
 
 void setUpGame();
+inline void setUpHeader();
 
 void __error__(char *pcFilename, unsigned long ulLine)
 {
@@ -252,11 +253,28 @@ void setUpGame()
     player.sprite.x = 50;
     player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH;
 
+    setUpHeader();
+
 #ifdef VGA
     if(firstRun)
         firstRun = false;
     else
         clearScreen();
     loadPlayer();
+#endif
+}
+
+inline void setUpHeader()
+{
+#ifdef VGA
+    VGA_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", VGA_WHITE);
+    VGA_Text(HEADER_SCORE_NUM, HEADER_Y, "0", VGA_GREEN);
+    VGA_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", VGA_WHITE);
+    VGA_Text(HEADER_LIVES_NUM, HEADER_Y, "3", VGA_GREEN);
+#elif LCD
+    LCD_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", LCD_WHITE);
+    LCD_Text(HEADER_SCORE_NUM, HEADER_Y, "0", LCD_GREEN);
+    LCD_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", LCD_WHITE);
+    LCD_Text(HEADER_LIVES_NUM, HEADER_Y, "3", LCD_GREEN);
 #endif
 }

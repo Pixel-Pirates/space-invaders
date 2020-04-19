@@ -10,8 +10,6 @@
 //#define INVADER_ROWS 1
 //#define INVADER_COLUMNS 1
 
-//#define CONTROLSUITE 1
-
 #define INVADER_HEIGHT 30
 #define INVADER_WIDTH 22
 #define INVADER_SIZE INVADER_WIDTH*INVADER_HEIGHT*2
@@ -22,6 +20,14 @@
 
 #define VGA_OFFSET_X 160
 #define VGA_OFFSET_Y 179
+
+#define HEADER_SCORE_TEXT   7
+#define HEADER_SCORE_NUM    HEADER_SCORE_TEXT + 48
+#define HEADER_LIVES_TEXT   HEADER_SCORE_TEXT + 144
+#define HEADER_LIVES_NUM    HEADER_LIVES_TEXT + 48
+#define HEADER_Y            3
+
+
 
 typedef struct sprite
 {
