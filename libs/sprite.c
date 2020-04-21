@@ -30,7 +30,7 @@ void sprite_draw(sprite_t* sprite)
         {
             for(uint32_t x = 0; x < sprite->width; x++)
             {
-                addr = ((sprite->x + x + VGA_OFFSET_X) << 9) | (sprite->y + y + VGA_SPRITE_OFFSET_Y);
+                addr = ((sprite->x + x + VGA_OFFSET_X) << 9) | (sprite->y + y + VGA_OFFSET_Y);
                 uint32_t index = 2*(x*sprite->height + y);
                 sram_write_multi(addr, sprite->data[index+1]<<8 | sprite->data[index]);
             }

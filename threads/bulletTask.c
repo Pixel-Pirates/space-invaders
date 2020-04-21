@@ -48,7 +48,7 @@ void bulletTask()
         while(1)
         {
             draw_entity(bullet, 0x0000);
-            if (bullet.y <= 0 || gameOver)
+            if (bullet.y <= SPRITE_OFFSET_Y || gameOver)
             {
                 break;
             }
@@ -113,7 +113,7 @@ void draw_entity(entity_t entity, uint16_t color) {
         {
             for(uint32_t x = 0; x < entity.width; x++)
             {
-                addr = ((entity.x + x + VGA_OFFSET_X) << 9) | (entity.y + y + VGA_SPRITE_OFFSET_Y);
+                addr = ((entity.x + x + VGA_OFFSET_X) << 9) | (entity.y + y + VGA_OFFSET_Y);
                 sram_write_multi(addr, color);
             }
         }
