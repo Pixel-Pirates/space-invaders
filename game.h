@@ -32,8 +32,6 @@
 #define HEADER_LIVES_NUM    HEADER_LIVES_TEXT + 48
 #define HEADER_Y            3
 
-
-
 typedef struct sprite
 {
     char* src; //image source

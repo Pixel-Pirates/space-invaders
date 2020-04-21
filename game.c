@@ -14,6 +14,7 @@
 #include "game.h"
 #include "libs/sprite.h"
 #include "threads/thread.h"
+#include "libs/display.h"
 
 #ifdef VGA
     #include "libs/VGA.h"
@@ -273,8 +274,9 @@ void setUpGame()
 
 inline void setUpHeader()
 {
-    LCD_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", WHITE_COLOR);
-    LCD_Text(HEADER_SCORE_NUM, HEADER_Y, "0       ", GREEN_COLOR);
-    LCD_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", WHITE_COLOR);
-    LCD_Text(HEADER_LIVES_NUM, HEADER_Y, "3", GREEN_COLOR);
+    text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", WHITE_COLOR);
+    text(HEADER_SCORE_NUM, HEADER_Y, "0000", GREEN_COLOR);
+    text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", WHITE_COLOR);
+    text(HEADER_LIVES_NUM, HEADER_Y, "3", GREEN_COLOR);
 }
+

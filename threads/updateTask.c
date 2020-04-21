@@ -76,8 +76,6 @@ void updateTask(void * pvParameters)
             if (!nunchuck.button_z) {
                 setUpGame();
 
-                xSemaphoreTake(lcd_ready, portMAX_DELAY);
-                xSemaphoreGive(lcd_ready);
                 sprite_draw(&player.sprite);
 
                 gameOver = false;
