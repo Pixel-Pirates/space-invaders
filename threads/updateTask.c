@@ -77,7 +77,6 @@ void updateTask(void * pvParameters)
                 setUpGame();
 
                 xSemaphoreTake(lcd_ready, portMAX_DELAY);
-                LCD_Init(false);
                 xSemaphoreGive(lcd_ready);
                 sprite_draw(&player.sprite);
 

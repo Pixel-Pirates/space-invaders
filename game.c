@@ -266,21 +266,15 @@ void setUpGame()
     setUpHeader();
     loadPlayer();
 #elif LCD
+    LCD_Init(false);
     setUpHeader();
 #endif
 }
 
 inline void setUpHeader()
 {
-#ifdef VGA
-    VGA_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", VGA_WHITE);
-    VGA_Text(HEADER_SCORE_NUM, HEADER_Y, "0       ", VGA_GREEN);
-    VGA_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", VGA_WHITE);
-    VGA_Text(HEADER_LIVES_NUM, HEADER_Y, "3", VGA_GREEN);
-#elif LCD
-    LCD_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", LCD_WHITE);
-    LCD_Text(HEADER_SCORE_NUM, HEADER_Y, "0       ", LCD_GREEN);
-    LCD_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", LCD_WHITE);
-    LCD_Text(HEADER_LIVES_NUM, HEADER_Y, "3", LCD_GREEN);
-#endif
+    LCD_Text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", WHITE_COLOR);
+    LCD_Text(HEADER_SCORE_NUM, HEADER_Y, "0       ", GREEN_COLOR);
+    LCD_Text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", WHITE_COLOR);
+    LCD_Text(HEADER_LIVES_NUM, HEADER_Y, "3", GREEN_COLOR);
 }
