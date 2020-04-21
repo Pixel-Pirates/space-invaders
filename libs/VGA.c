@@ -201,7 +201,7 @@ void printScore()
     sprintf(scoreStr, "%04i", score);
 #ifdef LCD
     xSemaphoreTake(lcd_ready, portMAX_DELAY);
-    LCD_DrawRectangle(HEADER_SCORE_NUM, HEADER_SCORE_NUM + 100, HEADER_Y, HEADER_Y + 20, 0x0000);
+    LCD_DrawRectangle(HEADER_SCORE_NUM, HEADER_SCORE_NUM + 50, HEADER_Y, HEADER_Y + 20, 0x0000);
     xSemaphoreGive(lcd_ready);
 #endif
     VGA_Text(HEADER_SCORE_NUM, HEADER_Y, (unsigned char*) scoreStr, GREEN_COLOR);

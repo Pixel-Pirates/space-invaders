@@ -19,7 +19,7 @@ extern volatile bool gameOver;
 #pragma DATA_SECTION(invaderM1Pixels,"ramgs4")
 #pragma DATA_SECTION(invaderM2Pixels,"ramgs5")
 
-#define INVADER_BASE_SPEED 50
+//#define INVADER_BASE_SPEED 50
 
 char invaderM1Pixels[INVADER_SIZE];
 char invaderM2Pixels[INVADER_SIZE];
@@ -29,6 +29,7 @@ void invaderTask() {
     unsigned short usBytesRead;
     bmp_t invader_med1;
     bmp_t invader_med2;
+    int invaderSpeed = 50;
 
 #ifdef BMP
     bmp_open(&invader_med1, "invaderA.bmp");
@@ -80,6 +81,7 @@ void invaderTask() {
             }
 
         }
+        invaderSpeed = (INVADER_COLUMNS*INVADER_ROWS - invadersDead) + 1;
 
         if (hitEnd) {
             hitEnd = false;
@@ -109,6 +111,6 @@ void invaderTask() {
             #endif
         }
 
-        vTaskDelay(INVADER_BASE_SPEED / portTICK_PERIOD_MS);
+        vTaskDelay(invaderSpeed / portTICK_PERIOD_MS);
     }
 }
