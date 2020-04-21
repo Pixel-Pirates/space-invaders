@@ -12,6 +12,7 @@
 #include "../libs/bulletCollid.h"
 #include "../libs/VGA.h"
 #include "../libs/sprite.h"
+#include "../libs/display.h"
 
 extern invader_t invaders[27];
 extern player_t player;
@@ -89,10 +90,10 @@ void bombTask(){
             }
             else
             {
+                draw_entity(player_e, 0x0000);      /* Undraw old location */
                 player.sprite.x = PLAYER_START_X;   /* Re-snap to start */
                 player.sprite._x = 0;               /* Used to FORCE a redraw */
                 sprite_draw(&player.sprite);        /* Redraw player, completing respawn */
-                draw_entity(player_e, 0x0000);      /* Undraw old location */
             }
         }
 

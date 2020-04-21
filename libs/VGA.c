@@ -23,7 +23,6 @@
 
 extern SemaphoreHandle_t sd_ready, lcd_ready;
 extern player_t player;
-extern uint16_t score;
 
 inline void writeAll(uint16_t color)
 {
@@ -124,11 +123,6 @@ void loss()
 
 inline void VGAPutChar( uint32_t Xpos, uint32_t Ypos, unsigned char character, uint16_t charColor)
 {
-#ifdef LCD
-    PutChar(Xpos, Ypos, character, charColor);
-#endif
-
-#ifdef VGA
     unsigned char buffer[16], tmp_char;
 	uint32_t addr = 0;
 
@@ -145,18 +139,11 @@ inline void VGAPutChar( uint32_t Xpos, uint32_t Ypos, unsigned char character, u
                 sram_write_multi(addr, VGA_BLACK);
         }
     }
-#endif
 }
 
 void VGA_Text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color)
 {
 
-    xSemaphoreTake(lcd_ready, portMAX_DELAY);
-#ifdef LCD
-    LCD_Text(X_pos, Y_pos, str, Color);
-#endif
-
-#ifdef VGA
     unsigned char TempChar;
 	for(unsigned sramNum = 0; sramNum < 2; sramNum++)
 	{
@@ -187,34 +174,6 @@ void VGA_Text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color
         while ( *msg != 0 );
 	    sram_write_multi_end();
 	}
-
-#endif
-	xSemaphoreGive(lcd_ready);
-#ifdef VGA
 	GPIO_WritePin(32, 0);
-#endif
 }
 
-void printScore()
-{
-    char scoreStr[4];
-    sprintf(scoreStr, "%04i", score);
-#ifdef LCD
-    xSemaphoreTake(lcd_ready, portMAX_DELAY);
-    LCD_DrawRectangle(HEADER_SCORE_NUM, HEADER_SCORE_NUM + 50, HEADER_Y, HEADER_Y + 20, 0x0000);
-    xSemaphoreGive(lcd_ready);
-#endif
-    VGA_Text(HEADER_SCORE_NUM, HEADER_Y, (unsigned char*) scoreStr, GREEN_COLOR);
-}
-
-void printLives()
-{
-    char livesStr[1];
-    sprintf(livesStr, "%i", player.lives);
-#ifdef LCD
-    xSemaphoreTake(lcd_ready, portMAX_DELAY);
-    LCD_DrawRectangle(HEADER_LIVES_NUM, HEADER_LIVES_NUM + 30, HEADER_Y, HEADER_Y + 20, 0x0000);
-    xSemaphoreGive(lcd_ready);
-#endif
-    VGA_Text(HEADER_LIVES_NUM, HEADER_Y, (unsigned char*) livesStr, GREEN_COLOR);
-}
