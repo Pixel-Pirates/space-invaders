@@ -238,7 +238,7 @@ void setUpGame()
             invader_t invader = invaders[i];
             invader.alive = true;
             invader.sprite.x = xIndex*(INVADER_WIDTH + 10) + 10;
-            invader.sprite.y = yIndex*(INVADER_HEIGHT + 10) + 10;
+            invader.sprite.y = yIndex*(INVADER_HEIGHT + 10) + 10 + SPRITE_OFFSET_Y;
             invader.sprite.width = INVADER_HEIGHT;
             invader.sprite.height = INVADER_WIDTH;
             invader.sprite.undraw = false;
@@ -254,7 +254,7 @@ void setUpGame()
 
     player.sprite._x = 0;
     player.sprite.x = PLAYER_START_X;
-    player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH - SPRITE_OFFSET_Y;
+    player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH;
 
     score = 0;
 

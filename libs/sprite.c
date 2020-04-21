@@ -30,7 +30,7 @@ void sprite_draw(sprite_t* sprite)
         {
             for(uint32_t x = 0; x < sprite->width; x++)
             {
-                addr = ((sprite->x + x + VGA_OFFSET_X) << 9) | (sprite->y + y + VGA_SPRITE_OFFSET_Y);
+                addr = ((sprite->x + x + VGA_OFFSET_X) << 9) | (sprite->y + y);
                 uint32_t index = 2*(x*sprite->height + y);
                 sram_write_multi(addr, sprite->data[index+1]<<8 | sprite->data[index]);
             }
@@ -41,11 +41,11 @@ void sprite_draw(sprite_t* sprite)
     #elif LCD
 
     int len = sprite->height*sprite->width*2;
-    LCD_WriteReg(HOR_ADDR_START_POS, sprite->y + SPRITE_OFFSET_Y);     /* Horizontal GRAM Start Address */
-    LCD_WriteReg(HOR_ADDR_END_POS, sprite->y + sprite->height - 1 + SPRITE_OFFSET_Y);  /* Horizontal GRAM End Address */
+    LCD_WriteReg(HOR_ADDR_START_POS, sprite->y);     /* Horizontal GRAM Start Address */
+    LCD_WriteReg(HOR_ADDR_END_POS, sprite->y + sprite->height - 1);  /* Horizontal GRAM End Address */
     LCD_WriteReg(VERT_ADDR_START_POS, sprite->x);    /* Vertical GRAM Start Address */
     LCD_WriteReg(VERT_ADDR_END_POS, sprite->x + sprite->width - 1);
-    LCD_SetCursor(sprite->x, sprite->y + SPRITE_OFFSET_Y);
+    LCD_SetCursor(sprite->x, sprite->y);
 
     LCD_WriteIndex(GRAM);
 

@@ -89,14 +89,14 @@ void bombTask(){
             }
             else
             {
-                draw_entity(player_e, 0);           /* Undraw old location */
                 player.sprite.x = PLAYER_START_X;   /* Re-snap to start */
                 player.sprite._x = 0;               /* Used to FORCE a redraw */
                 sprite_draw(&player.sprite);        /* Redraw player, completing respawn */
+                draw_entity(player_e, 0x0000);      /* Undraw old location */
             }
         }
 
-        if (bomb.y + bomb.height  >= MAX_SCREEN_Y - 1 - SPRITE_OFFSET_Y) {
+        if (bomb.y + bomb.height  >= MAX_SCREEN_Y - 1) {
             bomb.y = 0;
             activeBomb = false;
         }
