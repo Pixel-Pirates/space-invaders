@@ -180,18 +180,6 @@ void main(void)
     drawBackGround();
 #endif
 
-//#define TESTING
-
-#ifdef TESTING
-    extern char invaderM1Pixels[INVADER_SIZE];
-    extern bmp_t invader_med1;
-    bmp_open(&invader_med1, "im1.txt");
-    bmp_read(&invader_med1, invaderM1Pixels, INVADER_SIZE, &usBytesRead);
-    invader->sprite.data = invaderM1Pixels;
-    sprite_draw(&invader->sprite);
-    while(1);
-#endif
-
 #define PRIORITY_UPDATE     tskIDLE_PRIORITY + 2
 #define PRIORITY_SPEAKER    tskIDLE_PRIORITY + 2
 #define PRIORITY_INVADER    tskIDLE_PRIORITY + 2
@@ -259,7 +247,11 @@ void setUpGame()
             invader_t invader = invaders[i];
             invader.alive = true;
             invader.sprite.x = xIndex*(INVADER_WIDTH + 10) + 10;
-            invader.sprite.y = yIndex*(INVADER_HEIGHT + 10) + 10 + SPRITE_OFFSET_Y;
+            #ifdef SMALL_SPRITES
+                invader.sprite.y = yIndex*(INVADER_HEIGHT + 5) + 10 + SPRITE_OFFSET_Y;
+            #else
+                invader.sprite.y = yIndex*(INVADER_HEIGHT + 10) + 10 + SPRITE_OFFSET_Y;
+            #endif
             invader.sprite.width = INVADER_HEIGHT;
             invader.sprite.height = INVADER_WIDTH;
             invader.sprite.undraw = false;

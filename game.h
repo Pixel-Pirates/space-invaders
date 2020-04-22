@@ -4,28 +4,28 @@
 
 #include "env.h"
 
-#define INVADER_ROWS 3
-#define INVADER_COLUMNS 7
+#define INVADER_ROWS 5
+#define INVADER_COLUMNS 11
+
+
+//#define INVADER_ROWS 3
+//#define INVADER_COLUMNS 7
 
 //#define INVADER_ROWS 1
 //#define INVADER_COLUMNS 1
 
 #ifdef SMALL_SPRITES
+    #define INVADER_HEIGHT 16
+    #define INVADER_WIDTH 9
 
-#define INVADER_HEIGHT 16
-#define INVADER_WIDTH 9
-
-#define PLAYER_HEIGHT 8
-#define PLAYER_WIDTH 19
-
+    #define PLAYER_HEIGHT 8
+    #define PLAYER_WIDTH 19
 #else
+    #define INVADER_HEIGHT 30
+    #define INVADER_WIDTH 22
 
-#define INVADER_HEIGHT 30
-#define INVADER_WIDTH 22
-
-#define PLAYER_HEIGHT 31
-#define PLAYER_WIDTH 30
-
+    #define PLAYER_HEIGHT 31
+    #define PLAYER_WIDTH 30
 #endif
 
 #define INVADER_SIZE INVADER_WIDTH*INVADER_HEIGHT*2
@@ -49,7 +49,11 @@ typedef struct sprite
 {
     char* src; //image source
     FIL file; //sd card file
-    char * data;
+    #ifdef ONBOARD
+        uint16_t * data;
+    #else
+        char * data;
+    #endif
     bool loaded;
     int32_t x;
     int32_t y;

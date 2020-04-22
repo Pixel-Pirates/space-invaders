@@ -16,13 +16,17 @@ extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
 
-#pragma DATA_SECTION(invaderM1Pixels,"ramgs4")
+#pragma DATA_SECTION(invaderM1Pixels,"ramgs5")
 #pragma DATA_SECTION(invaderM2Pixels,"ramgs5")
-
+#pragma DATA_SECTION(invaderL2Pixels,"ramgs5")
+#pragma DATA_SECTION(invaderL2Pixels,"ramgs5")
 //#define INVADER_BASE_SPEED 50
 
 char invaderM1Pixels[INVADER_SIZE];
 char invaderM2Pixels[INVADER_SIZE];
+
+char invaderL1Pixels[INVADER_SIZE];
+char invaderL2Pixels[INVADER_SIZE];
 
 void invaderTask() {
 
@@ -35,10 +39,13 @@ void invaderTask() {
     bmp_open(&invader_med1, "invaderA.bmp");
     bmp_open(&invader_med2, "invaderB.bmp");
 #elif RAW
-//    bmp_open(&invader_med1, "invaderA.txt");
-//    bmp_open(&invader_med2, "invaderB.txt");
-    bmp_open(&invader_med1, "im1.txt");
-    bmp_open(&invader_med2, "im2.txt");
+    #ifdef SMALL_SPRITES
+        bmp_open(&invader_med1, "im1.txt");
+        bmp_open(&invader_med2, "im2.txt");
+    #else
+        bmp_open(&invader_med1, "invaderA.txt");
+        bmp_open(&invader_med2, "invaderB.txt");
+    #endif
 #endif
 
     bmp_read(&invader_med1, invaderM1Pixels, INVADER_SIZE, &usBytesRead);
