@@ -36,8 +36,13 @@ void invaderTask() {
     int invaderSpeed = 50;
 
 #ifdef BMP
+    #ifdef SMALL_SPRITES
+        bmp_open(&invader_med1, "im1.bmp");
+        bmp_open(&invader_med2, "im2.bmp");
+    #elif
     bmp_open(&invader_med1, "invaderA.bmp");
     bmp_open(&invader_med2, "invaderB.bmp");
+    #endif
 #elif RAW
     #ifdef SMALL_SPRITES
         bmp_open(&invader_med1, "im1.txt");
