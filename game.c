@@ -156,6 +156,8 @@ void main(void)
     BSP_Init();
 
 
+
+
     // Enable global Interrupts and higher priority real-time debug events:
     EINT;  // Enable Global interrupt INTM
     ERTM;  // Enable Global realtime interrupt DBGM
@@ -178,12 +180,30 @@ void main(void)
     drawBackGround();
 #endif
 
+//#define TESTING
+
+#ifdef TESTING
+    extern char invaderM1Pixels[INVADER_SIZE];
+    extern bmp_t invader_med1;
+    bmp_open(&invader_med1, "im1.txt");
+    bmp_read(&invader_med1, invaderM1Pixels, INVADER_SIZE, &usBytesRead);
+    invader->sprite.data = invaderM1Pixels;
+    sprite_draw(&invader->sprite);
+    while(1);
+#endif
+
+#define PRIORITY_UPDATE     tskIDLE_PRIORITY + 2
+#define PRIORITY_SPEAKER    tskIDLE_PRIORITY + 2
+#define PRIORITY_INVADER    tskIDLE_PRIORITY + 2
+#define PRIORITY_BULLET     tskIDLE_PRIORITY + 4
+#define PRIORITY_BOMB       PRIORITY_INVADER
+
     // Create the task without using any dynamic memory allocation.
     xTaskCreateStatic(updateTask,           // Function that implements the task.
                       "Update task",        // Text name for the task.
                       STACK_SIZE,           // Number of indexes in the xStack array.
                       ( void * ) 0,       // Parameter passed into the task.
-                      tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                      PRIORITY_UPDATE, // Priority at which the task is created.
                       updateTaskStack,      // Array to use as the task's stack.
                       &updateTaskBuffer );  // Variable to hold the task's data structure.
 #ifdef SPEAKER
@@ -191,7 +211,7 @@ void main(void)
                           "Seaker task",        // Text name for the task.
                           STACK_SIZE,           // Number of indexes in the xStack array.
                           ( void * ) 0,       // Parameter passed into the task.
-                          tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                          PRIORITY_SPEAKER, // Priority at which the task is created.
                           updateSpeakerStack,      // Array to use as the task's stack.
                           &updateSpeakerBuffer );  // Variable to hold the task's data structure.
 #endif
@@ -200,7 +220,7 @@ void main(void)
                       "Invader task",        // Text name for the task.
                       STACK_SIZE,           // Number of indexes in the xStack array.
                       ( void * ) 0,       // Parameter passed into the task.
-                      tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                      PRIORITY_INVADER, // Priority at which the task is created.
                       updateLcdStack,      // Array to use as the task's stack.
                       &updateLcdBuffer );  // Variable to hold the task's data structure.
 
@@ -209,7 +229,7 @@ void main(void)
                           "bullet",        // Text name for the task.
                           STACK_SIZE,           // Number of indexes in the xStack array.
                           ( void * ) 0,       // Parameter passed into the task.
-                          tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                          PRIORITY_BULLET, // Priority at which the task is created.
                           updateBulletStack,      // Array to use as the task's stack.
                           &updateBulletBuffer );  // Variable to hold the task's data structure.
 
@@ -217,7 +237,7 @@ void main(void)
                               "bomb",        // Text name for the task.
                               STACK_SIZE,           // Number of indexes in the xStack array.
                               ( void * ) 0,       // Parameter passed into the task.
-                              tskIDLE_PRIORITY + 2, // Priority at which the task is created.
+                              PRIORITY_BOMB, // Priority at which the task is created.
                               updateBombStack,      // Array to use as the task's stack.
                               &updateBombBuffer );  // Variable to hold the task's data structure.
 

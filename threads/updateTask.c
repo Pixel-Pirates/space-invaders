@@ -37,7 +37,7 @@ void updateTask(void * pvParameters)
     int cPressed = false;
     bmp_t player_bmp;
     unsigned short usBytesRead;
-    int16_t RESTING_X = 0;
+    int16_t RESTING_X = 127;
 #ifndef WIRELESS_CONTROLLER
     RESTING_X = getNunchuckData().joy_x;
 #endif
@@ -45,7 +45,8 @@ void updateTask(void * pvParameters)
 #ifdef BMP
     bmp_open(&player_bmp, "shooter.bmp");
 #elif RAW
-    bmp_open(&player_bmp, "shooter.txt");
+//    bmp_open(&player_bmp, "shooter.txt");
+    bmp_open(&player_bmp, "s.txt");
 #endif
 
     bmp_read(&player_bmp, playerPixels, PLAYER_SIZE, &usBytesRead);
@@ -72,7 +73,7 @@ void updateTask(void * pvParameters)
         nunchuck.button_c = cbutton;
         nunchuck.button_z = zbutton;
         nunchuck.joy_x = xpos;
-#elif
+#else
         nunchuck_t nunchuck = getNunchuckData();
 #endif
 
@@ -122,7 +123,6 @@ void updateTask(void * pvParameters)
         {
             cPressed = false;
         }
-
     }
 }
 

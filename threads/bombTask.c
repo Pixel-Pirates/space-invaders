@@ -97,7 +97,7 @@ void bombTask(){
             }
         }
 
-        if (bomb.y + bomb.height  >= MAX_SCREEN_Y - 1 - SPRITE_OFFSET_Y) {
+        if (bomb.y + bomb.height  >= MAX_SCREEN_Y - 1 - (SPRITE_OFFSET_Y>>2)) {
             bomb.y = 0;
             activeBomb = false;
         }

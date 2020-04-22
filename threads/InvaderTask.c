@@ -35,8 +35,10 @@ void invaderTask() {
     bmp_open(&invader_med1, "invaderA.bmp");
     bmp_open(&invader_med2, "invaderB.bmp");
 #elif RAW
-    bmp_open(&invader_med1, "invaderA.txt");
-    bmp_open(&invader_med2, "invaderB.txt");
+//    bmp_open(&invader_med1, "invaderA.txt");
+//    bmp_open(&invader_med2, "invaderB.txt");
+    bmp_open(&invader_med1, "im1.txt");
+    bmp_open(&invader_med2, "im2.txt");
 #endif
 
     bmp_read(&invader_med1, invaderM1Pixels, INVADER_SIZE, &usBytesRead);
