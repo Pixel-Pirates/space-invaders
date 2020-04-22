@@ -152,11 +152,7 @@ void main(void)
     // This function is found in F2837xS_PieVect.c.
     InitPieVectTable();
 
-
     BSP_Init();
-
-
-
 
     // Enable global Interrupts and higher priority real-time debug events:
     EINT;  // Enable Global interrupt INTM
@@ -255,12 +251,22 @@ void setUpGame()
             invader.sprite.width = INVADER_HEIGHT;
             invader.sprite.height = INVADER_WIDTH;
             invader.sprite.undraw = false;
+            switch(yIndex)
+            {
+            case 0:     invader.type = SMALL;      break;
+            case 1:     invader.type = MEDIUM;     break;
+            case 2:     invader.type = MEDIUM;     break;
+            case 3:     invader.type = LARGE;      break;
+            case 4:     invader.type = LARGE;      break;
+            default:    invader.type = UNDEF;      break;
+            }
+
             invaders[i] = invader;
             i++;
         }
     }
 
-    player.lives = 3;
+    player.lives = START_LIVES;
     player.sprite.height = PLAYER_HEIGHT;
     player.sprite.width = PLAYER_WIDTH;
     player.sprite.undraw = true;

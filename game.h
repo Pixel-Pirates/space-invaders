@@ -45,6 +45,13 @@
 #define HEADER_LIVES_NUM    HEADER_LIVES_TEXT + 48
 #define HEADER_Y            3
 
+typedef enum{
+    SMALL = 30,
+    MEDIUM = 20,
+    LARGE = 10,
+    UNDEF = 0xFF
+}invaderSize;
+
 typedef struct sprite
 {
     char* src; //image source
@@ -70,6 +77,7 @@ typedef struct invader
     bool alive;
     bool justDied;
     int deadFrames;
+    invaderSize type;
 } invader_t;
 
 typedef struct player
