@@ -37,7 +37,10 @@ void updateTask(void * pvParameters)
     int cPressed = false;
     bmp_t player_bmp;
     unsigned short usBytesRead;
-    int16_t RESTING_X = getNunchuckData().joy_x;
+    int16_t RESTING_X = 0;
+#ifndef WIRELESS_CONTROLLER
+    RESTING_X = getNunchuckData().joy_x;
+#endif
 
 #ifdef BMP
     bmp_open(&player_bmp, "shooter.bmp");
@@ -52,24 +55,26 @@ void updateTask(void * pvParameters)
 
     while (1)
     {
+#ifdef WIRELESS_CONTROLLER
         //start condition is 0x37
-//        while (getData() != 0x37);
-//        uint16_t cbutton = getData();
-//        if (cbutton == 0x44) { //check for escape
-//            continue;
-//        }
-//        uint16_t zbutton = getData();
-//        uint16_t xpos = getData();
-//        if (xpos == 0x44) {
-//            xpos = getData();
-//        }
-//
-//        nunchuck_t nunchuck;
-//        nunchuck.button_c = cbutton;
-//        nunchuck.button_z = zbutton;
-//        nunchuck.joy_x = xpos;
+        while (getData() != 0x37);
+        uint16_t cbutton = getData();
+        if (cbutton == 0x44) { //check for escape
+            continue;
+        }
+        uint16_t zbutton = getData();
+        uint16_t xpos = getData();
+        if (xpos == 0x44) { //check for escape again
+            xpos = getData();
+        }
 
+        nunchuck_t nunchuck;
+        nunchuck.button_c = cbutton;
+        nunchuck.button_z = zbutton;
+        nunchuck.joy_x = xpos;
+#elif
         nunchuck_t nunchuck = getNunchuckData();
+#endif
 
         if (gameOver) {
 

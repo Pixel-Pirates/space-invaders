@@ -7,12 +7,14 @@ void BSP_Init()
 {
     uart_init();
 
-    #ifdef LCD
+#ifdef LCD
     LCD_Init(false);
-    #endif
+#endif
 
+#ifndef WIRELESS_CONTROLLER
     I2CA_Init();
     nunchuck_init();
+#endif
     sram_init();
 
     scia_msg("\rOpen SD Card\n");
