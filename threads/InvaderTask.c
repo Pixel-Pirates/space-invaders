@@ -16,23 +16,32 @@ extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
 
+#pragma DATA_SECTION(invaderS1Pixels,"ramgs5")
 #pragma DATA_SECTION(invaderM1Pixels,"ramgs5")
+#pragma DATA_SECTION(invaderL1Pixels,"ramgs5")
+
+#pragma DATA_SECTION(invaderS2Pixels,"ramgs5")
 #pragma DATA_SECTION(invaderM2Pixels,"ramgs5")
 #pragma DATA_SECTION(invaderL2Pixels,"ramgs5")
-#pragma DATA_SECTION(invaderL2Pixels,"ramgs5")
-//#define INVADER_BASE_SPEED 50
 
+
+char invaderS1Pixels[INVADER_SIZE];
 char invaderM1Pixels[INVADER_SIZE];
-char invaderM2Pixels[INVADER_SIZE];
-
 char invaderL1Pixels[INVADER_SIZE];
+
+char invaderS2Pixels[INVADER_SIZE];
+char invaderM2Pixels[INVADER_SIZE];
 char invaderL2Pixels[INVADER_SIZE];
 
 void invaderTask() {
 
     unsigned short usBytesRead;
+    bmp_t invader_sml1;
+    bmp_t invader_sml2;
     bmp_t invader_med1;
     bmp_t invader_med2;
+    bmp_t invader_lar1;
+    bmp_t invader_lar2;
     int invaderSpeed = 50;
 
 #ifdef BMP
@@ -45,16 +54,26 @@ void invaderTask() {
     #endif
 #elif RAW
     #ifdef SMALL_SPRITES
+        bmp_open(&invader_sml1, "is1.txt");
         bmp_open(&invader_med1, "im1.txt");
+        bmp_open(&invader_lar1, "il1.txt");
+
+        bmp_open(&invader_sml2, "is2.txt");
         bmp_open(&invader_med2, "im2.txt");
+        bmp_open(&invader_lar2, "il2.txt");
     #else
         bmp_open(&invader_med1, "invaderA.txt");
         bmp_open(&invader_med2, "invaderB.txt");
     #endif
 #endif
-
+    bmp_read(&invader_sml1, invaderS1Pixels, INVADER_SIZE, &usBytesRead);
     bmp_read(&invader_med1, invaderM1Pixels, INVADER_SIZE, &usBytesRead);
+    bmp_read(&invader_lar1, invaderL1Pixels, INVADER_SIZE, &usBytesRead);
+
+    bmp_read(&invader_sml2, invaderS2Pixels, INVADER_SIZE, &usBytesRead);
     bmp_read(&invader_med2, invaderM2Pixels, INVADER_SIZE, &usBytesRead);
+    bmp_read(&invader_lar2, invaderL2Pixels, INVADER_SIZE, &usBytesRead);
+
     int movingRight = true;
     int hitEnd = false;
     bool aActive = true;
@@ -72,10 +91,20 @@ void invaderTask() {
             }
 
             if (aActive) {
-                invader->sprite.data = invaderM1Pixels;
+                if(invader->type == SMALL)
+                    invader->sprite.data = invaderS1Pixels;
+                else if(invader->type == MEDIUM)
+                    invader->sprite.data = invaderM1Pixels;
+                else
+                    invader->sprite.data = invaderL1Pixels;
             }
             else {
-                invader->sprite.data = invaderM2Pixels;
+                if(invader->type == SMALL)
+                    invader->sprite.data = invaderS2Pixels;
+                else if(invader->type == MEDIUM)
+                    invader->sprite.data = invaderM2Pixels;
+                else
+                    invader->sprite.data = invaderL2Pixels;
             }
             sprite_draw(&invader->sprite);
 

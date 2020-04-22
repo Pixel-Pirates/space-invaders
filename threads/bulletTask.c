@@ -10,15 +10,10 @@
 #include "../game.h"
 #include "../libs/bulletCollid.h"
 #include "../libs/VGA.h"
+#include "../libs/display.h"
 
 #define BULLET_WIDTH 3
 #define BULLET_HEIGHT 8
-
-typedef enum{
-    SMALL = 30,
-    MEDIUM = 20,
-    LARGE = 10
-}invaderPoints;
 
 extern SemaphoreHandle_t bullet_ready;
 extern SemaphoreHandle_t lcd_ready;
@@ -73,17 +68,8 @@ void bulletTask()
                     draw_entity(invader_e, 0x0000);
                     invaderDiedSound = true; //play invader death sound
 
-                    /* Update Score TODO: Modify logic for alien scores*/
-                    /* 0 is top row */
-                    switch(i/INVADER_COLUMNS)
-                    {
-                    case 0: score+=SMALL;   break;
-                    case 1: score+=MEDIUM;  break;
-                    case 2: score+=MEDIUM;  break;
-                    case 3: score+=LARGE;   break;
-                    case 4: score+=LARGE;   break;
-                    default: score=0xFF;    break;
-                    }
+                    /* Add Score */
+                    score += invaders[i].type;
                     break;
                 }
             }
