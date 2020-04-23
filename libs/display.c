@@ -51,7 +51,6 @@ void printLives()
     xSemaphoreTake(lcd_ready, portMAX_DELAY);
     LCD_DrawRectangle(HEADER_LIVES_NUM, HEADER_LIVES_NUM + 30, HEADER_Y, HEADER_Y + 20, 0x0000);
     xSemaphoreGive(lcd_ready);
-#elif VGA
-    VGA_Text(HEADER_LIVES_NUM, HEADER_Y, (unsigned char*) livesStr, GREEN_COLOR);
 #endif
+    text(HEADER_LIVES_NUM, HEADER_Y, (unsigned char*) livesStr, GREEN_COLOR);
 }
