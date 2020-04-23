@@ -46,8 +46,13 @@ void invaderTask() {
 
 #ifdef BMP
     #ifdef SMALL_SPRITES
+        bmp_open(&invader_sml1, "is1.bmp");
         bmp_open(&invader_med1, "im1.bmp");
+        bmp_open(&invader_lar1, "il1.bmp");
+
+        bmp_open(&invader_sml2, "is2.bmp");
         bmp_open(&invader_med2, "im2.bmp");
+        bmp_open(&invader_lar2, "il2.bmp");
     #elif
     bmp_open(&invader_med1, "invaderA.bmp");
     bmp_open(&invader_med2, "invaderB.bmp");
