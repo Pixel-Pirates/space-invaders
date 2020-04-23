@@ -10,6 +10,7 @@
 #include "../libs/sprite.h"
 #include "../libs/bmp.h"
 #include "../libs/VGA.h"
+#include "../libs/bulletCollid.h"
 
 extern SemaphoreHandle_t player_ready;
 extern invader_t invaders[27];
@@ -25,6 +26,9 @@ extern volatile bool playerDead;
 #pragma DATA_SECTION(invaderM2Pixels,"ramgs5")
 #pragma DATA_SECTION(invaderL2Pixels,"ramgs5")
 
+#pragma DATA_SECTION(invaderMDPixels,"ramgs5")
+#pragma DATA_SECTION(invaderIDPixels,"ramgs5")
+
 
 char invaderS1Pixels[INVADER_SIZE];
 char invaderM1Pixels[INVADER_SIZE];
@@ -33,6 +37,11 @@ char invaderL1Pixels[INVADER_SIZE];
 char invaderS2Pixels[INVADER_SIZE];
 char invaderM2Pixels[INVADER_SIZE];
 char invaderL2Pixels[INVADER_SIZE];
+
+char invaderMDPixels[INVADER_SIZE]; //death frame 1
+char invaderIDPixels[INVADER_SIZE]; //death frame 2
+
+void draw_entity(entity_t entity, uint16_t color);
 
 void invaderTask() {
 
@@ -43,6 +52,9 @@ void invaderTask() {
     bmp_t invader_med2;
     bmp_t invader_lar1;
     bmp_t invader_lar2;
+
+    bmp_t invader_md;
+    bmp_t invader_id;
     int invaderSpeed = 50;
 
 #ifdef BMP
@@ -54,6 +66,9 @@ void invaderTask() {
         bmp_open(&invader_sml2, "is2.bmp");
         bmp_open(&invader_med2, "im2.bmp");
         bmp_open(&invader_lar2, "il2.bmp");
+
+        bmp_open(&invader_md, "md.bmp");
+        bmp_open(&invader_id, "id.bmp");
     #elif
     bmp_open(&invader_med1, "invaderA.bmp");
     bmp_open(&invader_med2, "invaderB.bmp");
@@ -67,6 +82,9 @@ void invaderTask() {
         bmp_open(&invader_sml2, "is2.txt");
         bmp_open(&invader_med2, "im2.txt");
         bmp_open(&invader_lar2, "il2.txt");
+
+        bmp_open(&invader_md, "md.txt");
+        bmp_open(&invader_id, "id.txt");
     #else
         bmp_open(&invader_med1, "invaderA.txt");
         bmp_open(&invader_med2, "invaderB.txt");
@@ -79,6 +97,9 @@ void invaderTask() {
     bmp_read(&invader_sml2, invaderS2Pixels, INVADER_SIZE, &usBytesRead);
     bmp_read(&invader_med2, invaderM2Pixels, INVADER_SIZE, &usBytesRead);
     bmp_read(&invader_lar2, invaderL2Pixels, INVADER_SIZE, &usBytesRead);
+
+    bmp_read(&invader_md, invaderMDPixels, INVADER_SIZE, &usBytesRead);
+    bmp_read(&invader_id, invaderIDPixels, INVADER_SIZE, &usBytesRead);
 
     int movingRight = true;
     int hitEnd = false;
@@ -93,6 +114,29 @@ void invaderTask() {
             invader_t* invader = &invaders[i];
             if (!invader->alive) {
                 invadersDead++;
+                if (invader->justDied) {
+                    if (invader->deadFrames < 2) {
+                        invader->sprite.data = invaderIDPixels;
+                        sprite_draw(&invader->sprite);
+                    }
+                    else if (invader->deadFrames < 5) {
+                        invader->sprite.data = invaderMDPixels;
+                        sprite_draw(&invader->sprite);
+                    }
+                    else {
+                        entity_t invader_e;
+                        invader_e.height = invader->sprite.height;
+                        invader_e.width = invader->sprite.width;
+                        invader_e.x = invader->sprite._x;
+                        invader_e.y = invader->sprite._y;
+                        draw_entity(invader_e, 0x0000);
+
+
+                        invader->justDied = false;
+                    }
+
+                    invader->deadFrames++;
+                }
                 continue;
             }
 

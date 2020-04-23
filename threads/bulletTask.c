@@ -65,6 +65,8 @@ void bulletTask()
 
                 if (bulletCollided(invader_e, bullet)) {
                     invaders[i].alive = false;
+                    invaders[i].justDied = true;
+                    invaders[i].deadFrames = 0;
                     foundDead = true;
                     draw_entity(invader_e, 0x0000);
                     invaderDiedSound = true; //play invader death sound
