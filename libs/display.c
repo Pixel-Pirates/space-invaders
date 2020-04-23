@@ -13,7 +13,7 @@
 //#include "threads/thread.h"
 
 extern SemaphoreHandle_t lcd_ready;
-extern uint16_t score;
+extern uint16_t score, highScore;
 extern player_t player;
 
 void text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color)
@@ -53,4 +53,17 @@ void printLives()
     xSemaphoreGive(lcd_ready);
 #endif
     text(HEADER_LIVES_NUM, HEADER_Y, (unsigned char*) livesStr, GREEN_COLOR);
+}
+
+void printHighScore()
+{
+    char scoreStr[4];
+    sprintf(scoreStr, "%04i", highScore);
+
+#ifdef LCD
+    xSemaphoreTake(lcd_ready, portMAX_DELAY);
+    LCD_DrawRectangle(HEADER_HSCORE_NUM, HEADER_HSCORE_NUM + 50, HEADER_Y, HEADER_Y + 20, 0x0000);
+    xSemaphoreGive(lcd_ready);
+#endif
+   text(HEADER_HSCORE_NUM, HEADER_Y, (unsigned char*) scoreStr, GREEN_COLOR);
 }

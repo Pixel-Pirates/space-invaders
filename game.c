@@ -42,7 +42,7 @@ invader_t invaders[INVADER_COLUMNS*INVADER_ROWS];
 player_t player;
 bool firstRun = true;
 
-uint16_t score = 0;
+uint16_t score = 0, highScore = 0;
 
 #define STACK_SIZE  1280U
 
@@ -72,6 +72,7 @@ static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
 
 volatile bool gameOver = true;
+volatile bool victory = false;
 volatile bool playerDead = false;
 
 void setUpGame();
@@ -276,12 +277,12 @@ void setUpGame()
     player.sprite.x = PLAYER_START_X;
     player.sprite.y = MAX_SCREEN_Y - PLAYER_WIDTH;
 
+    if(score > highScore)
+        highScore = score;
     score = 0;
 
 #ifdef VGA
-    if(firstRun)
-        firstRun = false;
-    else
+    if(!firstRun)
         clearScreen();
     setUpHeader();
     loadPlayer();
@@ -294,8 +295,10 @@ void setUpGame()
 inline void setUpHeader()
 {
     text(HEADER_SCORE_TEXT, HEADER_Y, "SCORE", WHITE_COLOR);
-    text(HEADER_SCORE_NUM, HEADER_Y, "0000", GREEN_COLOR);
+    printScore();
     text(HEADER_LIVES_TEXT, HEADER_Y, "LIVES", WHITE_COLOR);
-    text(HEADER_LIVES_NUM, HEADER_Y, "3", GREEN_COLOR);
+    printLives();
+    text(HEADER_HSCORE_TEXT, HEADER_Y, "HIGHSCORE", WHITE_COLOR);
+    printHighScore();
 }
 

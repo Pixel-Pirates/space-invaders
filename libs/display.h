@@ -13,5 +13,6 @@
 void text(uint16_t X_pos, uint16_t Y_pos, unsigned char *str, uint16_t Color);
 void printScore();
 void printLives();
+void printHighScore();
 
 #endif /* LIBS_DISPLAY_H_ */

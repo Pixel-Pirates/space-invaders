@@ -21,6 +21,7 @@ extern SemaphoreHandle_t lcd_ready;
 extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
+extern volatile bool victory;
 extern volatile bool playerShootSound;
 extern volatile bool invaderDiedSound;
 extern uint16_t score;

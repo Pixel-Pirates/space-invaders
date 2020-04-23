@@ -29,7 +29,9 @@ extern SemaphoreHandle_t player_ready;
 extern SemaphoreHandle_t bullet_ready;
 extern SemaphoreHandle_t lcd_ready;
 extern volatile bool gameOver;
+extern volatile bool victory;
 extern volatile bool playerDead;
+extern bool firstRun;
 extern void draw_entity(entity_t entity, uint16_t color);
 
 extern void setUpGame();
@@ -102,15 +104,34 @@ void updateTask(void * pvParameters)
         nunchuck_t nunchuck = getNunchuckData();
     #endif
 
+        if(((gameOver && !victory) || playerDead) && !firstRun )
+        {
+            if((deadLoop >> 5) & 1)
+            {
+                player.sprite._x = 0;               /* Used to FORCE a redraw */
+                if(deadFrame)
+                    player.sprite.data = destruction1;
+                else
+                    player.sprite.data = destruction2;
+                deadFrame = !deadFrame;
+                sprite_draw(&player.sprite);
+                deadLoop = 0;
+            }
+
+            deadLoop++;
+
+        }
+
         if (gameOver) {
             if (!nunchuck.button_z) {
-                if(gameOver) {
-                    setUpGame();
-                    sprite_draw(&player.sprite);
-                    gameOver = false;
-                    playerDead = false;
-                    deadLoop = 0;
-                }
+                firstRun = false;
+                setUpGame();
+                player.sprite._x = 0;               /* Used to FORCE a redraw */
+                player.sprite.data = playerPixels;
+                sprite_draw(&player.sprite);
+                gameOver = false;
+                playerDead = false;
+                deadLoop = 0;
             }
             continue;
         }
@@ -133,20 +154,6 @@ void updateTask(void * pvParameters)
                 deadLoop = 0;
                 playerDead = false;
             }
-
-            if((deadLoop >> 5) & 1)
-            {
-                player.sprite._x = 0;               /* Used to FORCE a redraw */
-                if(deadFrame)
-                    player.sprite.data = destruction1;
-                else
-                    player.sprite.data = destruction2;
-                deadFrame = !deadFrame;
-                sprite_draw(&player.sprite);
-                deadLoop = 0;
-            }
-
-            deadLoop++;
             continue;
         }
 

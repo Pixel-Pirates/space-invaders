@@ -16,6 +16,7 @@ extern SemaphoreHandle_t player_ready;
 extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
+extern volatile bool victory;
 extern volatile bool playerDead;
 
 #pragma DATA_SECTION(invaderS1Pixels,"ramgs5")
@@ -178,7 +179,7 @@ void invaderTask() {
             }
 
         }
-        invaderSpeed = (INVADER_COLUMNS*INVADER_ROWS - invadersDead) + 6;
+        invaderSpeed = (INVADER_COLUMNS*INVADER_ROWS - invadersDead) + 8;
 
         if (hitEnd) {
             hitEnd = false;
@@ -201,10 +202,19 @@ void invaderTask() {
             count = 0;
         }
 
-        if (invadersDead == INVADER_ROWS*INVADER_COLUMNS || highestY > MAX_SCREEN_Y - 50) {
+        if (invadersDead == INVADER_ROWS*INVADER_COLUMNS) {
             gameOver = true;
+            victory = true;
             #ifdef VGA
                 win();
+            #endif
+        }
+        else if(highestY > MAX_SCREEN_Y - 50)
+        {
+            gameOver = true;
+            victory = false;
+            #ifdef VGA
+                loss();
             #endif
         }
 

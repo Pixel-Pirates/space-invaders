@@ -19,9 +19,10 @@ extern player_t player;
 
 void draw_entity(entity_t entity, uint16_t color);
 
-extern volatile int gameOver;
-extern volatile int playerDead;
+extern volatile bool gameOver;
+extern volatile bool playerDead;
 extern volatile bool playPlayerDeadSound;
+extern volatile bool victory;
 
 extern volatile uint16_t deadLoop;
 
@@ -88,7 +89,7 @@ void bombTask(){
             if(player.lives == 0)
             {
                 gameOver = true;
-
+                victory = false;
                 #ifdef VGA
                     loss();
                 #endif
