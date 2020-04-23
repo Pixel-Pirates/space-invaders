@@ -20,6 +20,11 @@ extern player_t player;
 void draw_entity(entity_t entity, uint16_t color);
 
 extern volatile int gameOver;
+extern volatile int playerDead;
+
+extern volatile uint16_t deadLoop;
+
+extern char * destruction1;
 
 void bombTask(){
     bool activeBomb = false;
@@ -29,7 +34,7 @@ void bombTask(){
     bomb.height = 5;
     bomb.width = 4;
     while(1) {
-        while(gameOver);
+        while(gameOver || playerDead);
 
         if (!activeBomb) {
             int invaderCount = 0;
@@ -42,7 +47,6 @@ void bombTask(){
                       invader_t invader = invaders[invaderIndex];
 
                       if (invader.alive) {
-
                             firstRow[invaderCount] = invader;
                             invaderCount++;
                             break;
@@ -90,10 +94,9 @@ void bombTask(){
             }
             else
             {
-                draw_entity(player_e, 0x0000);      /* Undraw old location */
-                player.sprite.x = PLAYER_START_X;   /* Re-snap to start */
                 player.sprite._x = 0;               /* Used to FORCE a redraw */
-                sprite_draw(&player.sprite);        /* Redraw player, completing respawn */
+                deadLoop = 0xFFFF;
+                playerDead = true;                  /* Set flag */
             }
         }
 

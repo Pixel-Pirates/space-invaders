@@ -11,6 +11,7 @@
 #include "../libs/bulletCollid.h"
 #include "../libs/VGA.h"
 #include "../libs/display.h"
+#include "../libs/bulletCollid.h"
 
 #define BULLET_WIDTH 3
 #define BULLET_HEIGHT 8
