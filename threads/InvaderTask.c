@@ -109,6 +109,7 @@ void invaderTask() {
     while (1) {
         while(gameOver || playerDead);
         int invadersDead = 0;
+        int highestY = 0;
         for (int i = 0; i < INVADER_COLUMNS*INVADER_ROWS; i++)
         {
             invader_t* invader = &invaders[i];
@@ -156,6 +157,9 @@ void invaderTask() {
                 else
                     invader->sprite.data = invaderL2Pixels;
             }
+            if (highestY < invader->sprite.y) {
+                highestY = invader->sprite.y;
+            }
             sprite_draw(&invader->sprite);
 
             if (movingRight) {
@@ -197,7 +201,7 @@ void invaderTask() {
             count = 0;
         }
 
-        if (invadersDead == INVADER_ROWS*INVADER_COLUMNS) {
+        if (invadersDead == INVADER_ROWS*INVADER_COLUMNS || highestY > MAX_SCREEN_Y - 50) {
             gameOver = true;
             #ifdef VGA
                 win();
