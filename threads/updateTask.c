@@ -57,7 +57,11 @@ void updateTask(void * pvParameters)
 #endif
 
 #ifdef BMP
+    #ifdef SMALL_SPRITES
+        bmp_open(&player_bmp, "s.bmp");
+    #else
     bmp_open(&player_bmp, "shooter.bmp");
+    #endif
 #elif RAW
     #ifdef SMALL_SPRITES
         bmp_open(&player_bmp, "s.txt");
