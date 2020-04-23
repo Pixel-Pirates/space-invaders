@@ -71,7 +71,8 @@ static StackType_t  updateLcdStack[STACK_SIZE];
 static StaticTask_t idleTaskBuffer;
 static StackType_t  idleTaskStack[STACK_SIZE];
 
-extern volatile bool gameOver = true;
+volatile bool gameOver = true;
+volatile bool playerDead = false;
 
 void setUpGame();
 inline void setUpHeader();

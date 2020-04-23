@@ -27,6 +27,7 @@ typedef struct wav
 extern SemaphoreHandle_t music_ready;
 extern SemaphoreHandle_t sd_ready;
 extern volatile bool gameOver;
+extern volatile bool playerDead;
 volatile bool playerShootSound = false;
 volatile bool invaderDiedSound = false;
 
@@ -140,6 +141,10 @@ void speakerTask()
             {
                 wav_start(&title);
             }
+        }
+        else if(playerDead)
+        {
+            //TODO: Add death sound
         }
 
         if (playerShootSound) {

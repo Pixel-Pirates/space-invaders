@@ -11,21 +11,33 @@
 #include "../game.h"
 #include "../libs/sprite.h"
 #include "../libs/bmp.h"
+#include "../libs/bulletCollid.h"
 
 #define JOY_DEADZONE 30
 #define JOY_OFFSET 0
 
 #pragma DATA_SECTION(playerPixels,"ramgs4")
+#pragma DATA_SECTION(destruction1,"ramgs4")
+#pragma DATA_SECTION(destruction2,"ramgs4")
+
 char playerPixels[PLAYER_SIZE];
+char destruction1[PLAYER_SIZE];
+char destruction2[PLAYER_SIZE];
 
 extern player_t player;
 extern SemaphoreHandle_t player_ready;
 extern SemaphoreHandle_t bullet_ready;
 extern SemaphoreHandle_t lcd_ready;
 extern volatile bool gameOver;
+extern volatile bool playerDead;
+extern void draw_entity(entity_t entity, uint16_t color);
+
 extern void setUpGame();
 
 nunchuck_t getNunchuckData();
+
+volatile uint16_t deadLoop;
+volatile bool deadFrame;
 
 uint16_t getData() {
    while(ScibRegs.SCIFFRX.bit.RXFFST == 0) { } // wait for empty state
@@ -36,6 +48,8 @@ void updateTask(void * pvParameters)
 {
     int cPressed = false;
     bmp_t player_bmp;
+    bmp_t sd1_bmp;
+    bmp_t sd2_bmp;
     unsigned short usBytesRead;
     int16_t RESTING_X = 127;
 #ifndef WIRELESS_CONTROLLER
@@ -47,19 +61,23 @@ void updateTask(void * pvParameters)
 #elif RAW
     #ifdef SMALL_SPRITES
         bmp_open(&player_bmp, "s.txt");
+        bmp_open(&sd1_bmp, "sd1.txt");
+        bmp_open(&sd2_bmp, "sd2.txt");
     #else
         bmp_open(&player_bmp, "shooter.txt");
     #endif
 #endif
 
     bmp_read(&player_bmp, playerPixels, PLAYER_SIZE, &usBytesRead);
+    bmp_read(&sd1_bmp, destruction1, PLAYER_SIZE, &usBytesRead);
+    bmp_read(&sd2_bmp, destruction2, PLAYER_SIZE, &usBytesRead);
+
     player.sprite.data = playerPixels;
     sprite_draw(&player.sprite);
 
-
     while (1)
     {
-#ifdef WIRELESS_CONTROLLER
+    #ifdef WIRELESS_CONTROLLER
         //start condition is 0x37
         while (getData() != 0x37);
         uint16_t cbutton = getData();
@@ -76,20 +94,55 @@ void updateTask(void * pvParameters)
         nunchuck.button_c = cbutton;
         nunchuck.button_z = zbutton;
         nunchuck.joy_x = xpos;
-#else
+    #else
         nunchuck_t nunchuck = getNunchuckData();
-#endif
+    #endif
 
         if (gameOver) {
-
             if (!nunchuck.button_z) {
-                setUpGame();
+                if(gameOver) {
+                    setUpGame();
+                    sprite_draw(&player.sprite);
+                    gameOver = false;
+                    playerDead = false;
+                    deadLoop = 0;
+                }
+            }
+            continue;
+        }
+        else if(playerDead){
+            if (!nunchuck.button_z)
+            {
+                /* Undraw old location */
+                entity_t player_e;
+                player_e.height = player.sprite.height;
+                player_e.width = player.sprite.width;
+                player_e.x = player.sprite.x;
+                player_e.y = player.sprite.y;
+                draw_entity(player_e, 0x0000);
 
-                sprite_draw(&player.sprite);
-
-                gameOver = false;
+                /* Player Respawn */
+                player.sprite.data = playerPixels;
+                player.sprite.x = PLAYER_START_X;   /* Re-snap to start */
+                player.sprite._x = 0;               /* Used to FORCE a redraw */
+                sprite_draw(&player.sprite);        /* Redraw player, completing respawn */
+                deadLoop = 0;
+                playerDead = false;
             }
 
+            if((deadLoop >> 5) & 1)
+            {
+                player.sprite._x = 0;               /* Used to FORCE a redraw */
+                if(deadFrame)
+                    player.sprite.data = destruction1;
+                else
+                    player.sprite.data = destruction2;
+                deadFrame = !deadFrame;
+                sprite_draw(&player.sprite);
+                deadLoop = 0;
+            }
+
+            deadLoop++;
             continue;
         }
 

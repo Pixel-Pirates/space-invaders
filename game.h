@@ -45,6 +45,8 @@
 #define HEADER_LIVES_NUM    HEADER_LIVES_TEXT + 48
 #define HEADER_Y            3
 
+#define START_LIVES 9
+
 typedef enum{
     SMALL = 30,
     MEDIUM = 20,

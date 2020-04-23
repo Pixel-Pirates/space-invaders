@@ -15,6 +15,7 @@ extern SemaphoreHandle_t player_ready;
 extern invader_t invaders[27];
 extern player_t player;
 extern volatile bool gameOver;
+extern volatile bool playerDead;
 
 #pragma DATA_SECTION(invaderS1Pixels,"ramgs5")
 #pragma DATA_SECTION(invaderM1Pixels,"ramgs5")
@@ -75,7 +76,7 @@ void invaderTask() {
     int count = 0;
 
     while (1) {
-        while(gameOver);
+        while(gameOver || playerDead);
         int invadersDead = 0;
         for (int i = 0; i < INVADER_COLUMNS*INVADER_ROWS; i++)
         {
