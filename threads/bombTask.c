@@ -21,6 +21,7 @@ void draw_entity(entity_t entity, uint16_t color);
 
 extern volatile int gameOver;
 extern volatile int playerDead;
+extern volatile bool playPlayerDeadSound;
 
 extern volatile uint16_t deadLoop;
 
@@ -97,6 +98,7 @@ void bombTask(){
                 player.sprite._x = 0;               /* Used to FORCE a redraw */
                 deadLoop = 0xFFFF;
                 playerDead = true;                  /* Set flag */
+                playPlayerDeadSound = true;
             }
         }
 

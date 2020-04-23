@@ -28,6 +28,7 @@ extern SemaphoreHandle_t music_ready;
 extern SemaphoreHandle_t sd_ready;
 extern volatile bool gameOver;
 extern volatile bool playerDead;
+volatile bool playPlayerDeadSound = false;
 volatile bool playerShootSound = false;
 volatile bool invaderDiedSound = false;
 
@@ -142,9 +143,15 @@ void speakerTask()
                 wav_start(&title);
             }
         }
-        else if(playerDead)
+
+        if(playPlayerDeadSound)
         {
-            //TODO: Add death sound
+            wav_read(&playerShot, in, BUFFER_SIZE - 1, &usBytesRead);
+            if (usBytesRead == 0)
+            {
+                wav_start(&playerShot);
+                playPlayerDeadSound = false;
+            }
         }
 
         if (playerShootSound) {
