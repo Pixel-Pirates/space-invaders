@@ -172,11 +172,12 @@ void main(void)
     GPIO_SetupPinOptions(32, GPIO_OUTPUT, 0);
 #endif
 
-    setUpGame();
-
 #ifdef VGA
     drawBackGround();
 #endif
+
+    text(LOADING_1_X, LOADING_Y, "LOADING...", GREEN_COLOR);
+    setUpGame();
 
 #define PRIORITY_UPDATE     tskIDLE_PRIORITY + 2
 #define PRIORITY_SPEAKER    tskIDLE_PRIORITY + 2
@@ -194,12 +195,12 @@ void main(void)
                       &updateTaskBuffer );  // Variable to hold the task's data structure.
 #ifdef SPEAKER
     xTaskCreateStatic(speakerTask,           // Function that implements the task.
-                          "Seaker task",        // Text name for the task.
-                          STACK_SIZE,           // Number of indexes in the xStack array.
-                          ( void * ) 0,       // Parameter passed into the task.
-                          PRIORITY_SPEAKER, // Priority at which the task is created.
-                          updateSpeakerStack,      // Array to use as the task's stack.
-                          &updateSpeakerBuffer );  // Variable to hold the task's data structure.
+                      "Speaker task",        // Text name for the task.
+                      STACK_SIZE,           // Number of indexes in the xStack array.
+                      ( void * ) 0,       // Parameter passed into the task.
+                      PRIORITY_SPEAKER, // Priority at which the task is created.
+                      updateSpeakerStack,      // Array to use as the task's stack.
+                      &updateSpeakerBuffer );  // Variable to hold the task's data structure.
 #endif
 
     xTaskCreateStatic(invaderTask,           // Function that implements the task.
@@ -226,6 +227,11 @@ void main(void)
                               PRIORITY_BOMB, // Priority at which the task is created.
                               updateBombStack,      // Array to use as the task's stack.
                               &updateBombBuffer );  // Variable to hold the task's data structure.
+
+
+    text(LOADING_2_X, LOADING_Y, " COMPLETE", GREEN_COLOR);
+    text(INSTR_M1_X, INSTR_M1_Y, "USE JOYSTICK TO MOVE", GREEN_COLOR);
+    text(INSTR_M2_X, INSTR_M2_Y, "HIT 'c' TO SHOOT", GREEN_COLOR);
 
     vTaskStartScheduler();
 
@@ -284,12 +290,11 @@ void setUpGame()
 #ifdef VGA
     if(!firstRun)
         clearScreen();
-    setUpHeader();
     loadPlayer();
 #elif LCD
     LCD_Init(false);
-    setUpHeader();
 #endif
+    setUpHeader();
 }
 
 inline void setUpHeader()

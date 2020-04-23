@@ -85,6 +85,7 @@ void bombTask(){
 
             player.lives--;
             printLives();
+            playPlayerDeadSound = true;
 
             if(player.lives == 0)
             {
@@ -99,7 +100,6 @@ void bombTask(){
                 player.sprite._x = 0;               /* Used to FORCE a redraw */
                 deadLoop = 0xFFFF;
                 playerDead = true;                  /* Set flag */
-                playPlayerDeadSound = true;
             }
         }
 

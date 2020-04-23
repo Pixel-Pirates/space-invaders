@@ -12,6 +12,7 @@
 #include "../libs/sprite.h"
 #include "../libs/bmp.h"
 #include "../libs/bulletCollid.h"
+#include "../libs/display.h"
 
 #define JOY_DEADZONE 30
 #define JOY_OFFSET 0
@@ -104,22 +105,45 @@ void updateTask(void * pvParameters)
         nunchuck_t nunchuck = getNunchuckData();
     #endif
 
-        if(((gameOver && !victory) || playerDead) && !firstRun )
+        if(firstRun)
+        {
+            player.sprite._x = 0;               /* Used to FORCE a redraw */
+            player.sprite.data = playerPixels;
+            sprite_draw(&player.sprite);
+
+            if((deadLoop >> 5) & 1)
+            {
+                if(deadFrame)
+                    text(LOADING_1_X, LOADING_Y, "LOADING COMPLETE", GREEN_COLOR);
+                else
+                    text(LOADING_1_X, LOADING_Y, "                ", GREEN_COLOR);
+                deadFrame = !deadFrame;
+                deadLoop = 0;
+            }
+
+            deadLoop++;
+        }
+        else if((gameOver && !victory) || playerDead)
         {
             if((deadLoop >> 5) & 1)
             {
                 player.sprite._x = 0;               /* Used to FORCE a redraw */
                 if(deadFrame)
+                {
+                    text(HEADER_2_X, HEADER_2_Y, "HIT 'Z' TO RESPAWN", GREEN_COLOR);
                     player.sprite.data = destruction1;
+                }
                 else
+                {
+                    text(HEADER_2_X, HEADER_2_Y, "                  ", GREEN_COLOR);
                     player.sprite.data = destruction2;
+                }
                 deadFrame = !deadFrame;
                 sprite_draw(&player.sprite);
                 deadLoop = 0;
             }
 
             deadLoop++;
-
         }
 
         if (gameOver) {
@@ -138,6 +162,8 @@ void updateTask(void * pvParameters)
         else if(playerDead){
             if (!nunchuck.button_z)
             {
+                text(HEADER_2_X, HEADER_2_Y, "                  ", GREEN_COLOR);
+
                 /* Undraw old location */
                 entity_t player_e;
                 player_e.height = player.sprite.height;

@@ -50,7 +50,21 @@
 #define HEADER_HSCORE_TEXT  HEADER_SCORE_TEXT + 200
 #define HEADER_HSCORE_NUM   HEADER_HSCORE_TEXT + 72
 
-#define HEADER_Y            3
+#define HEADER_Y            2
+
+#define HEADER_2_X          80
+#define HEADER_2_Y          HEADER_Y + 16
+
+#define LOADING_1_X         96
+#define LOADING_2_X         LOADING_1_X + 56
+#define LOADING_Y           HEADER_Y + 16
+
+#define INSTR_M1_X          80
+#define INSTR_M2_X          96
+
+#define INSTR_M1_Y          140
+#define INSTR_M2_Y          INSTR_M1_Y + 16
+
 
 #define START_LIVES 3
 
