@@ -178,7 +178,7 @@ void invaderTask() {
             }
 
         }
-        invaderSpeed = (INVADER_COLUMNS*INVADER_ROWS - invadersDead) + 1;
+        invaderSpeed = (INVADER_COLUMNS*INVADER_ROWS - invadersDead) + 6;
 
         if (hitEnd) {
             hitEnd = false;
